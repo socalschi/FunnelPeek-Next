@@ -25,7 +25,10 @@ export const AdbConfigModal: React.FC<AdbConfigModalProps> = ({
   if (!isOpen) return null;
 
   const handleBrowseCustom = async () => {
-    if (!window.electronAPI) return;
+    if (!window.electronAPI) {
+      setErrorMsg('Electron API bridge is not available. Please verify the application is running in Electron.');
+      return;
+    }
     setIsBrowsing(true);
     setErrorMsg(null);
     try {

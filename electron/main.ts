@@ -1,5 +1,6 @@
 import { app, BrowserWindow, ipcMain, dialog, Menu, shell } from 'electron';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { adbService } from './adb-service.ts';
 
@@ -9,13 +10,17 @@ const __dirname = path.dirname(__filename);
 let mainWindow: BrowserWindow | null = null;
 
 function createWindow() {
+  const preloadPath = fs.existsSync(path.join(__dirname, 'preload.cjs'))
+    ? path.join(__dirname, 'preload.cjs')
+    : path.join(__dirname, 'preload.js');
+
   mainWindow = new BrowserWindow({
     width: 1360,
     height: 880,
     minWidth: 1024,
     minHeight: 700,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: preloadPath,
       nodeIntegration: false,
       contextIsolation: true,
       backgroundThrottling: false
@@ -79,20 +84,28 @@ app.whenReady().then(async () => {
 
   // Select ADB executable
   ipcMain.handle('select-adb-file', async () => {
-    if (!mainWindow) return { canceled: true };
-    const result = await dialog.showOpenDialog(mainWindow, {
-      title: 'Select ADB Executable',
-      properties: ['openFile'],
-      filters: process.platform === 'win32'
-        ? [{ name: 'Executables', extensions: ['exe'] }]
-        : [{ name: 'All Files', extensions: ['*'] }]
-    });
+    try {
+      const win = BrowserWindow.getFocusedWindow() || mainWindow || undefined;
+      const result = await dialog.showOpenDialog(win as any, {
+        title: 'Select ADB Executable',
+        properties: ['openFile', 'dontAddToRecent'],
+        filters: process.platform === 'win32'
+          ? [
+              { name: 'ADB Executable (adb.exe)', extensions: ['exe'] },
+              { name: 'All Files (*.*)', extensions: ['*'] }
+            ]
+          : [{ name: 'All Files', extensions: ['*'] }]
+      });
 
-    if (result.canceled || result.filePaths.length === 0) {
-      return { canceled: true };
+      if (result.canceled || result.filePaths.length === 0) {
+        return { canceled: true };
+      }
+
+      return { canceled: false, filePath: result.filePaths[0] };
+    } catch (err: any) {
+      console.error('Error opening file dialog:', err);
+      throw err;
     }
-
-    return { canceled: false, filePath: result.filePaths[0] };
   });
 
   // Set ADB path

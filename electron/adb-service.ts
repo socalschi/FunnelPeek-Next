@@ -20,57 +20,107 @@ export class AdbService {
   private adbClient: any = null;
   public currentAdbPath: string | null = null;
 
+  private expandEnv(str: string): string {
+    return str.replace(/%([^%]+)%/g, (_, n) => process.env[n] || '');
+  }
+
   /**
-   * Automatically detect ADB binary on the host machine
+   * Automatically detect ADB binary on the host machine prioritizing PATH
    */
   async autoDetectAdb(): Promise<DetectedAdb[]> {
     const candidates: { path: string; source: DetectedAdb['source'] }[] = [];
+    const addedPaths = new Set<string>();
 
-    // 1. Check C:\ADB\adb.exe (popular standalone location)
-    if (process.platform === 'win32' && fs.existsSync('C:\\ADB\\adb.exe')) {
-      candidates.push({ path: 'C:\\ADB\\adb.exe', source: 'c-adb' });
-    }
-
-    // 2. Check local AppData Android SDK
-    if (process.platform === 'win32') {
-      const localAppData = process.env.LOCALAPPDATA;
-      if (localAppData) {
-        const sdkAdb = path.join(localAppData, 'Android', 'Sdk', 'platform-tools', 'adb.exe');
-        if (fs.existsSync(sdkAdb)) {
-          candidates.push({ path: sdkAdb, source: 'android-sdk' });
+    const addCandidate = (rawPath: string, source: DetectedAdb['source']) => {
+      try {
+        const normalized = path.normalize(path.resolve(rawPath));
+        const key = normalized.toLowerCase();
+        if (!addedPaths.has(key) && fs.existsSync(normalized)) {
+          addedPaths.add(key);
+          candidates.push({ path: normalized, source });
         }
-      }
+      } catch {}
+    };
+
+    // 1. Direct scan of system and user PATH environment variables
+    const envPath = process.env.PATH || process.env.Path || '';
+    const pathDirs = envPath.split(path.delimiter);
+    for (const dir of pathDirs) {
+      if (!dir.trim()) continue;
+      const target = path.join(dir.trim(), process.platform === 'win32' ? 'adb.exe' : 'adb');
+      addCandidate(target, 'path');
     }
 
-    // 3. Check ANDROID_HOME and ANDROID_SDK_ROOT
-    const envSdk = process.env.ANDROID_HOME || process.env.ANDROID_SDK_ROOT;
-    if (envSdk) {
-      const adbBinary = process.platform === 'win32' ? 'adb.exe' : 'adb';
-      const sdkPath = path.join(envSdk, 'platform-tools', adbBinary);
-      if (fs.existsSync(sdkPath)) {
-        candidates.push({ path: sdkPath, source: 'android-sdk' });
-      }
+    // 2. Query Windows Registry for user and system PATH (in case process PATH is stale)
+    if (process.platform === 'win32') {
+      try {
+        const { stdout: userPathOut } = await execAsync('reg query "HKCU\\Environment" /v Path');
+        const match = userPathOut.match(/Path\s+REG_\w+\s+(.*)/i);
+        if (match && match[1]) {
+          const userDirs = match[1].split(';');
+          for (const rawDir of userDirs) {
+            const dir = this.expandEnv(rawDir.trim());
+            if (dir) {
+              addCandidate(path.join(dir, 'adb.exe'), 'path');
+            }
+          }
+        }
+      } catch {}
+
+      try {
+        const { stdout: sysPathOut } = await execAsync('reg query "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment" /v Path');
+        const match = sysPathOut.match(/Path\s+REG_\w+\s+(.*)/i);
+        if (match && match[1]) {
+          const sysDirs = match[1].split(';');
+          for (const rawDir of sysDirs) {
+            const dir = this.expandEnv(rawDir.trim());
+            if (dir) {
+              addCandidate(path.join(dir, 'adb.exe'), 'path');
+            }
+          }
+        }
+      } catch {}
     }
 
-    // 4. Check system PATH
+    // 3. Check CLI lookup tool (where.exe adb or which adb)
     try {
       const cmd = process.platform === 'win32' ? 'where.exe adb' : 'which adb';
       const { stdout } = await execAsync(cmd);
       const lines = stdout.trim().split(/\r?\n/).map(l => l.trim()).filter(Boolean);
       for (const line of lines) {
-        if (fs.existsSync(line) && !candidates.some(c => c.path.toLowerCase() === line.toLowerCase())) {
-          candidates.push({ path: line, source: 'path' });
-        }
+        addCandidate(line, 'path');
       }
-    } catch {
-      // PATH check failed or not in PATH
+    } catch {}
+
+    // 4. Check ANDROID_HOME and ANDROID_SDK_ROOT
+    const envSdk = process.env.ANDROID_HOME || process.env.ANDROID_SDK_ROOT;
+    if (envSdk) {
+      const adbBinary = process.platform === 'win32' ? 'adb.exe' : 'adb';
+      addCandidate(path.join(envSdk, 'platform-tools', adbBinary), 'android-sdk');
+    }
+
+    // 5. Check standard Android SDK & Standalone locations
+    if (process.platform === 'win32') {
+      const localAppData = process.env.LOCALAPPDATA;
+      if (localAppData) {
+        addCandidate(path.join(localAppData, 'Android', 'Sdk', 'platform-tools', 'adb.exe'), 'android-sdk');
+      }
+      const userProfile = process.env.USERPROFILE;
+      if (userProfile) {
+        addCandidate(path.join(userProfile, 'AppData', 'Local', 'Android', 'Sdk', 'platform-tools', 'adb.exe'), 'android-sdk');
+      }
+      addCandidate('C:\\ADB\\adb.exe', 'c-adb');
+      addCandidate('C:\\platform-tools\\adb.exe', 'android-sdk');
+      addCandidate('C:\\Android\\platform-tools\\adb.exe', 'android-sdk');
+      addCandidate('C:\\Program Files\\Android\\platform-tools\\adb.exe', 'android-sdk');
+      addCandidate('C:\\Program Files (x86)\\Android\\android-sdk\\platform-tools\\adb.exe', 'android-sdk');
     }
 
     // Verify candidates and get their versions
     const results: DetectedAdb[] = [];
     for (const cand of candidates) {
       try {
-        const { stdout } = await execFileAsync(cand.path, ['version']);
+        const { stdout } = await execFileAsync(cand.path, ['version'], { timeout: 3000 });
         const versionMatch = stdout.match(/version\s+([\d.]+)/i);
         results.push({
           path: cand.path,
