@@ -1,0 +1,222 @@
+import { app, BrowserWindow, ipcMain, dialog, Menu, shell } from 'electron';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { adbService } from './adb-service.ts';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+let mainWindow: BrowserWindow | null = null;
+
+function createWindow() {
+  mainWindow = new BrowserWindow({
+    width: 1360,
+    height: 880,
+    minWidth: 1024,
+    minHeight: 700,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      nodeIntegration: false,
+      contextIsolation: true,
+      backgroundThrottling: false
+    },
+    icon: path.join(process.env.VITE_PUBLIC || path.join(__dirname, '../public'), 'FP2.png'),
+    show: false,
+    backgroundColor: '#0f172a',
+    titleBarStyle: 'default',
+    title: 'FunnelPeek Next'
+  });
+
+  // Open external links in default browser
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    shell.openExternal(url);
+    return { action: 'deny' };
+  });
+
+  if (process.env.VITE_DEV_SERVER_URL) {
+    mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
+    // mainWindow.webContents.openDevTools();
+  } else {
+    mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
+  }
+
+  mainWindow.once('ready-to-show', () => {
+    mainWindow?.show();
+  });
+
+  mainWindow.on('closed', () => {
+    mainWindow = null;
+  });
+}
+
+app.whenReady().then(async () => {
+  // Menu configuration
+  Menu.setApplicationMenu(null);
+
+  // Try auto-detecting ADB silently on start
+  try {
+    const detected = await adbService.autoDetectAdb();
+    if (detected.length > 0) {
+      await adbService.initialize(detected[0].path);
+      console.log(`Auto-initialized ADB from: ${detected[0].path}`);
+    }
+  } catch (err) {
+    console.warn('Initial ADB auto-detection notice:', err);
+  }
+
+  // IPC Handlers
+  ipcMain.handle('get-version', () => '2.0.0');
+
+  // Auto-detect ADB
+  ipcMain.handle('auto-detect-adb', async () => {
+    try {
+      const detected = await adbService.autoDetectAdb();
+      return detected;
+    } catch (err: any) {
+      return [];
+    }
+  });
+
+  // Select ADB executable
+  ipcMain.handle('select-adb-file', async () => {
+    if (!mainWindow) return { canceled: true };
+    const result = await dialog.showOpenDialog(mainWindow, {
+      title: 'Select ADB Executable',
+      properties: ['openFile'],
+      filters: process.platform === 'win32'
+        ? [{ name: 'Executables', extensions: ['exe'] }]
+        : [{ name: 'All Files', extensions: ['*'] }]
+    });
+
+    if (result.canceled || result.filePaths.length === 0) {
+      return { canceled: true };
+    }
+
+    return { canceled: false, filePath: result.filePaths[0] };
+  });
+
+  // Set ADB path
+  ipcMain.handle('set-adb-path', async (_event, adbPath: string) => {
+    await adbService.initialize(adbPath);
+    const version = await adbService.getVersion();
+    return { success: true, version };
+  });
+
+  // Get ADB version
+  ipcMain.handle('adb-version', async () => {
+    return await adbService.getVersion();
+  });
+
+  // Get devices
+  ipcMain.handle('adb-get-devices', async () => {
+    return await adbService.listDevices();
+  });
+
+  // Pull screenshot
+  ipcMain.handle('adb-pull-screenshot', async (_event, deviceId: string) => {
+    return await adbService.captureScreenshot(deviceId);
+  });
+
+  // Dump UI hierarchy
+  ipcMain.handle('adb-dump-pagesource', async (_event, deviceId: string) => {
+    return await adbService.dumpUiHierarchy(deviceId);
+  });
+
+  // Remote Input Tap
+  ipcMain.handle('adb-input-tap', async (_event, deviceId: string, x: number, y: number) => {
+    await adbService.inputTap(deviceId, x, y);
+    return { success: true };
+  });
+
+  // Remote Input Text
+  ipcMain.handle('adb-input-text', async (_event, deviceId: string, text: string) => {
+    await adbService.inputText(deviceId, text);
+    return { success: true };
+  });
+
+  // Remote Input Keyevent
+  ipcMain.handle('adb-input-keyevent', async (_event, deviceId: string, keycode: string) => {
+    await adbService.inputKeyEvent(deviceId, keycode);
+    return { success: true };
+  });
+
+  // Packages
+  ipcMain.handle('adb-list-packages', async (_event, deviceId: string, options: any) => {
+    return await adbService.listPackages(deviceId, options);
+  });
+
+  ipcMain.handle('adb-uninstall-package', async (_event, deviceId: string, packageName: string) => {
+    await adbService.uninstallPackage(deviceId, packageName);
+    return { success: true };
+  });
+
+  ipcMain.handle('adb-install-package', async (_event, deviceId: string) => {
+    if (!mainWindow) return { canceled: true };
+    const result = await dialog.showOpenDialog(mainWindow, {
+      title: 'Select APK to Install',
+      filters: [{ name: 'Android Package', extensions: ['apk'] }],
+      properties: ['openFile']
+    });
+
+    if (result.canceled || result.filePaths.length === 0) {
+      return { canceled: true };
+    }
+
+    const apkPath = result.filePaths[0];
+    await adbService.installPackage(deviceId, apkPath);
+    return { success: true, apkPath };
+  });
+
+  // Save Zip
+  ipcMain.handle('save-funnel-zip', async (_event, data: any) => {
+    if (!mainWindow) return { canceled: true };
+    const defaultName = `funnel_${data.deviceId || 'device'}_${Date.now()}.zip`;
+    const result = await dialog.showSaveDialog(mainWindow, {
+      title: 'Save FunnelPeek Archive (.zip)',
+      defaultPath: defaultName,
+      filters: [{ name: 'ZIP Files', extensions: ['zip'] }]
+    });
+
+    if (result.canceled || !result.filePath) {
+      return { canceled: true };
+    }
+
+    await adbService.saveZip(result.filePath, data);
+    return { success: true, filePath: result.filePath };
+  });
+
+  // Load Zip
+  ipcMain.handle('load-funnel-zip', async () => {
+    if (!mainWindow) return { canceled: true };
+    const result = await dialog.showOpenDialog(mainWindow, {
+      title: 'Load FunnelPeek Archive (.zip)',
+      filters: [{ name: 'ZIP Files', extensions: ['zip'] }],
+      properties: ['openFile']
+    });
+
+    if (result.canceled || result.filePaths.length === 0) {
+      return { canceled: true };
+    }
+
+    const data = await adbService.loadZip(result.filePaths[0]);
+    return { success: true, data, filePath: result.filePaths[0] };
+  });
+
+  createWindow();
+
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow();
+    }
+  });
+});
+
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
+
+app.on('before-quit', () => {
+  adbService.close();
+});
