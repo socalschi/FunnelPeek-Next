@@ -64,14 +64,6 @@ export function App() {
             };
           });
           setFunnelSteps(hydratedSteps);
-
-          // If no active board screen is set yet, restore the latest flow screen so the user doesn't face an empty board
-          const latest = hydratedSteps[hydratedSteps.length - 1];
-          if (latest) {
-            setCapturedImage(latest.screenshot);
-            setUiHierarchyXml(latest.xml);
-            setSelectedElementId(latest.selectedElement?.id || null);
-          }
         }
       } catch (err) {
         console.warn('Failed to load persisted funnel flow:', err);
@@ -115,6 +107,64 @@ export function App() {
     }
   }, [darkMode]);
 
+  // Auto-inspect reference on launch
+  const hasAutoInspectedRef = useRef<boolean>(false);
+
+  // Inspect device screen & hierarchy
+  const handleInspect = async (deviceIdOverride?: string) => {
+    const targetDev = deviceIdOverride || selectedDevice;
+    if (!targetDev || !window.electronAPI) return;
+    setIsCapturing(true);
+    setErrorMessage(null);
+    setIsSecuredScreen(false);
+
+    try {
+      const screenshot = await window.electronAPI.adbPullScreenshot(targetDev);
+      setCapturedImage(screenshot);
+
+      const xml = await window.electronAPI.adbDumpUi(targetDev);
+      setUiHierarchyXml(xml);
+
+      setSelectedElementId(null);
+      setHighlightedElementId(null);
+      setCurrentPage('funnelboard');
+    } catch (err: any) {
+      console.error('Inspection failed:', err);
+      if (err.message && (err.message.includes('blank') || err.message.includes('secured'))) {
+        setIsSecuredScreen(true);
+      }
+      setErrorMessage(err.message || 'Falha ao inspecionar tela do dispositivo.');
+    } finally {
+      setIsCapturing(false);
+    }
+  };
+
+  const refreshDevices = async (shouldAutoInspect = false) => {
+    if (!window.electronAPI) return;
+    try {
+      const devList = await window.electronAPI.adbGetDevices();
+      setDevices(devList);
+      if (devList.length === 0) {
+        setSelectedDevice(null);
+      } else {
+        const activeDev = selectedDevice && devList.some(d => d.id === selectedDevice)
+          ? selectedDevice
+          : devList[0].id;
+        setSelectedDevice(activeDev);
+
+        // Auto inspect upon initial ADB confirmation and device detection!
+        if (shouldAutoInspect && !hasAutoInspectedRef.current && activeDev) {
+          hasAutoInspectedRef.current = true;
+          await handleInspect(activeDev);
+        }
+      }
+    } catch (err) {
+      console.warn('Refresh devices notice:', err);
+      setDevices([]);
+      setSelectedDevice(null);
+    }
+  };
+
   // Initial Auto-detect ADB & Devices
   const scanAdbAndDevices = async () => {
     if (!window.electronAPI) return;
@@ -132,27 +182,10 @@ export function App() {
         setAdbVersion(ver);
       }
 
-      // 2. Fetch connected devices
-      await refreshDevices();
+      // 2. Fetch connected devices and auto-inspect on start
+      await refreshDevices(true);
     } catch (err) {
       console.warn('Initial scan notice:', err);
-    }
-  };
-
-  const refreshDevices = async () => {
-    if (!window.electronAPI) return;
-    try {
-      const devList = await window.electronAPI.adbGetDevices();
-      setDevices(devList);
-      if (devList.length === 0) {
-        setSelectedDevice(null);
-      } else if (!selectedDevice || !devList.some(d => d.id === selectedDevice)) {
-        setSelectedDevice(devList[0].id);
-      }
-    } catch (err) {
-      console.warn('Refresh devices notice:', err);
-      setDevices([]);
-      setSelectedDevice(null);
     }
   };
 
@@ -161,7 +194,8 @@ export function App() {
 
     // Poll devices every 3 seconds to seamlessly detect USB connect/disconnect
     const interval = setInterval(() => {
-      refreshDevices();
+      // If user connects phone after launch and we haven't inspected yet, auto inspect
+      refreshDevices(!hasAutoInspectedRef.current);
     }, 3000);
 
     return () => clearInterval(interval);
@@ -175,7 +209,7 @@ export function App() {
       setAdbPath(path);
       const ver = await window.electronAPI.getAdbVersion();
       setAdbVersion(ver);
-      await refreshDevices();
+      await refreshDevices(!hasAutoInspectedRef.current);
       setIsAdbModalOpen(false);
     } catch (err: any) {
       alert(`Failed to set ADB path: ${err.message}`);
@@ -215,34 +249,6 @@ export function App() {
       alert(`Falha na inspeção da tela: ${err.message}`);
     } finally {
       setIsCapturingStep(false);
-    }
-  };
-
-  // Inspect current device screen & hierarchy
-  const handleInspect = async () => {
-    if (!selectedDevice || !window.electronAPI) return;
-    setIsCapturing(true);
-    setErrorMessage(null);
-    setIsSecuredScreen(false);
-
-    try {
-      const screenshot = await window.electronAPI.adbPullScreenshot(selectedDevice);
-      setCapturedImage(screenshot);
-
-      const xml = await window.electronAPI.adbDumpUi(selectedDevice);
-      setUiHierarchyXml(xml);
-
-      setSelectedElementId(null);
-      setHighlightedElementId(null);
-      setCurrentPage('funnelboard');
-    } catch (err: any) {
-      console.error('Inspection failed:', err);
-      if (err.message && (err.message.includes('blank') || err.message.includes('secured'))) {
-        setIsSecuredScreen(true);
-      }
-      setErrorMessage(err.message || 'Falha ao inspecionar tela do dispositivo.');
-    } finally {
-      setIsCapturing(false);
     }
   };
 
@@ -320,8 +326,8 @@ export function App() {
         selectedDevice={selectedDevice}
         setSelectedDevice={setSelectedDevice}
         devices={devices}
-        onRefreshDevices={refreshDevices}
-        onInspect={handleInspect}
+        onRefreshDevices={() => refreshDevices(false)}
+        onInspect={() => handleInspect()}
         isCapturing={isCapturing}
         hasCapturedImage={Boolean(capturedImage)}
         onAddToFlow={handleAddCurrentToFlow}
@@ -359,7 +365,7 @@ export function App() {
               isSecuredScreen={isSecuredScreen}
               errorMessage={errorMessage}
               setErrorMessage={setErrorMessage}
-              onInspect={handleInspect}
+              onInspect={() => handleInspect()}
             />
           )}
 

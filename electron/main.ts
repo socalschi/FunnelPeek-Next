@@ -31,6 +31,14 @@ function createWindow() {
     ? path.join(__dirname, 'preload.cjs')
     : path.join(__dirname, 'preload.js');
 
+  let appIcon = 'H:\\Sistema\\Desktop\\FunnelPeek next.ico';
+  if (!fs.existsSync(appIcon)) {
+    appIcon = path.join(process.env.VITE_PUBLIC || path.join(__dirname, '../public'), 'icon.ico');
+  }
+  if (!fs.existsSync(appIcon)) {
+    appIcon = path.join(process.env.VITE_PUBLIC || path.join(__dirname, '../public'), 'FP2.png');
+  }
+
   mainWindow = new BrowserWindow({
     width: 1360,
     height: 880,
@@ -42,7 +50,7 @@ function createWindow() {
       contextIsolation: true,
       backgroundThrottling: false
     },
-    icon: path.join(process.env.VITE_PUBLIC || path.join(__dirname, '../public'), 'FP2.png'),
+    icon: appIcon,
     show: false,
     backgroundColor: '#1E1F22',
     titleBarStyle: 'default',

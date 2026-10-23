@@ -74,8 +74,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {/* Top header inside sidebar */}
           <div className="p-3.5 flex items-center justify-between border-b border-slate-100 dark:border-jb-border">
             <div className="flex items-center gap-2">
-              <div className="w-5 h-5 rounded bg-jb-accent flex items-center justify-center">
-                <span className="text-[10px] font-bold text-white">FP</span>
+              <div className="w-5 h-5 rounded bg-jb-accent/15 border border-jb-accent/30 flex items-center justify-center overflow-hidden">
+                <img src="/FP2.png" alt="FP" className="w-4 h-4 object-contain" onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }} />
               </div>
               <span className="font-semibold text-xs text-slate-800 dark:text-jb-text">Navegação</span>
             </div>

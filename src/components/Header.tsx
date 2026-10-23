@@ -1,6 +1,30 @@
 import React from 'react';
-import { Menu, Smartphone, RefreshCw, ScanEye, Download, Upload, Check } from 'lucide-react';
+import { Menu, RefreshCw, ScanEye, Download, Upload, Check } from 'lucide-react';
 import { Device } from '../types/index.ts';
+
+export const AndroidPhoneIcon: React.FC<{ className?: string }> = ({ className = "w-5 h-5" }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    {/* Android phone chassis with slight rounded corners */}
+    <rect x="5.5" y="2" width="13" height="20" rx="2.5" ry="2.5" />
+    {/* Top speaker slit */}
+    <line x1="10.5" y1="4.2" x2="13.5" y2="4.2" strokeWidth="1.4" />
+    {/* Android camera hole punch */}
+    <circle cx="12" cy="6.8" r="0.8" fill="currentColor" stroke="none" />
+    {/* Screen bezel lines */}
+    <line x1="7" y1="5.6" x2="17" y2="5.6" strokeWidth="0.8" opacity="0.3" />
+    <line x1="7" y1="18.5" x2="17" y2="18.5" strokeWidth="0.8" opacity="0.3" />
+    {/* Android navigation pill bar at the bottom */}
+    <line x1="9.5" y1="20" x2="14.5" y2="20" strokeWidth="1.6" />
+  </svg>
+);
 
 interface HeaderProps {
   sidebarOpen: boolean;
@@ -47,11 +71,11 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
 
           <div className="flex items-center space-x-2">
-            <div className="w-6 h-6 rounded bg-jb-accent flex items-center justify-center shadow-xs">
+            <div className="w-6 h-6 rounded bg-jb-accent/15 border border-jb-accent/30 flex items-center justify-center shadow-xs overflow-hidden">
               <img
                 src="/FP2.png"
                 alt="FP"
-                className="w-4 h-4 object-contain"
+                className="w-5 h-5 object-contain"
                 onError={(e) => {
                   (e.target as HTMLElement).style.display = 'none';
                 }}
@@ -72,13 +96,23 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Right Action Bar (Device selector, Refresh, Inspect Screen, Add to Flow, Load Zip, Save Zip) */}
         <div className="flex items-center gap-2 flex-nowrap shrink-0 overflow-x-auto">
-          {/* Device Selector */}
-          <div className="flex items-center gap-1">
-            <Smartphone className="w-3.5 h-3.5 text-jb-accent shrink-0" />
+          {/* Device Selector with Android Phone Icon and Refresh to its immediate right */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            <AndroidPhoneIcon className="w-5 h-5 text-jb-accent shrink-0" />
+
+            {/* Refresh moved to the left, immediately to the right of the phone icon */}
+            <button
+              onClick={onRefreshDevices}
+              className="p-1 rounded hover:bg-slate-100 dark:hover:bg-jb-hover text-slate-500 dark:text-jb-textMuted hover:text-jb-accent transition-colors shrink-0"
+              title="Atualizar lista de aparelhos"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+            </button>
+
             <select
               value={selectedDevice || ''}
               onChange={(e) => setSelectedDevice(e.target.value)}
-              className="text-xs font-medium py-1 px-2.5 rounded border border-slate-300 dark:border-jb-border bg-white dark:bg-jb-elevated text-slate-800 dark:text-jb-text focus:outline-none focus:ring-1 focus:ring-jb-accent max-w-[190px] truncate"
+              className="text-xs font-medium py-1 px-2.5 rounded border border-slate-300 dark:border-jb-border bg-white dark:bg-jb-elevated text-slate-800 dark:text-jb-text focus:outline-none focus:ring-1 focus:ring-jb-accent max-w-[200px] truncate"
             >
               {devices.length === 0 ? (
                 <option value="">Nenhum Aparelho Conectado</option>
@@ -90,14 +124,6 @@ export const Header: React.FC<HeaderProps> = ({
                 ))
               )}
             </select>
-
-            <button
-              onClick={onRefreshDevices}
-              className="p-1 rounded hover:bg-slate-100 dark:hover:bg-jb-hover text-slate-500 dark:text-jb-textMuted transition-colors"
-              title="Atualizar lista de aparelhos"
-            >
-              <RefreshCw className="w-3.5 h-3.5" />
-            </button>
           </div>
 
           <div className="w-[1px] h-4 bg-slate-200 dark:bg-jb-border mx-0.5" />
