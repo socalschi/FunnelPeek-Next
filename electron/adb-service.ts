@@ -144,25 +144,17 @@ export class AdbService {
         throw new Error(`ADB executable not found at: ${adbPath}`);
       }
 
-      if (this.adbClient) {
-        try {
-          this.adbClient.kill();
-        } catch {}
-      }
-
       process.env.ANDROID_ADB = adbPath;
       this.currentAdbPath = adbPath;
 
-      this.adbClient = Adb.createClient({
-        bin: adbPath,
-        host: '127.0.0.1',
-        port: 5037
-      });
+      // Start adb daemon if not started
+      try {
+        await execFileAsync(adbPath, ['start-server'], { timeout: 5000 });
+      } catch {}
 
       return true;
     } catch (error: any) {
       console.error('Failed to initialize ADB client:', error);
-      this.adbClient = null;
       throw error;
     }
   }
@@ -171,19 +163,14 @@ export class AdbService {
    * Close and cleanup client
    */
   close() {
-    if (this.adbClient) {
-      try {
-        this.adbClient.kill();
-      } catch {}
-      this.adbClient = null;
-    }
+    this.currentAdbPath = null;
   }
 
   /**
    * Ensure ADB is configured or throw
    */
   private ensureClient() {
-    if (!this.adbClient && !this.currentAdbPath) {
+    if (!this.currentAdbPath) {
       throw new Error('ADB is not configured. Please select or auto-detect ADB.');
     }
   }
@@ -193,8 +180,19 @@ export class AdbService {
    */
   async execAdbCli(args: string[]): Promise<string> {
     const bin = this.currentAdbPath || 'adb';
-    const { stdout } = await execFileAsync(bin, args, { maxBuffer: 10 * 1024 * 1024 });
-    return stdout;
+    try {
+      const { stdout } = await execFileAsync(bin, args, { maxBuffer: 15 * 1024 * 1024 });
+      return stdout;
+    } catch (err: any) {
+      const errOutput = err.stderr || err.message || '';
+      if (errOutput.includes('device not found') || errOutput.includes('device offline')) {
+        throw new Error(`Dispositivo desconectado ou não encontrado. Conecte o cabo USB e ative a depuração USB.`);
+      }
+      if (errOutput.includes('device unauthorized')) {
+        throw new Error(`Dispositivo não autorizado. Aceite o diálogo de depuração USB no seu celular.`);
+      }
+      throw new Error(errOutput.trim() || err.message);
+    }
   }
 
   /**
@@ -202,16 +200,6 @@ export class AdbService {
    */
   async deviceShell(deviceId: string, command: string): Promise<string> {
     this.ensureClient();
-    try {
-      if (this.adbClient) {
-        const outputStream = await this.adbClient.shell(deviceId, command);
-        const buffer = await this.streamToBuffer(outputStream);
-        return buffer.toString('utf8').trim();
-      }
-    } catch {
-      // Fallback to CLI
-    }
-
     return (await this.execAdbCli(['-s', deviceId, 'shell', command])).trim();
   }
 
@@ -220,15 +208,9 @@ export class AdbService {
    */
   async getVersion(): Promise<string> {
     this.ensureClient();
-    try {
-      if (this.adbClient) {
-        const version = await this.adbClient.version();
-        return `Android Debug Bridge version 1.0.${version}`;
-      }
-    } catch {}
-
     const out = await this.execAdbCli(['version']);
-    return out.trim();
+    const match = out.match(/version\s+([\d.]+)/i);
+    return match ? `Android Debug Bridge version ${match[1]}` : out.trim();
   }
 
   /**
@@ -253,11 +235,7 @@ export class AdbService {
 
       return devices;
     } catch (err: any) {
-      if (this.adbClient) {
-        const rawDevices = await this.adbClient.listDevices();
-        return rawDevices.map((d: any) => ({ id: d.id, state: d.type || 'device' }));
-      }
-      throw err;
+      return [];
     }
   }
 
@@ -266,36 +244,25 @@ export class AdbService {
    */
   async captureScreenshot(deviceId: string): Promise<string> {
     this.ensureClient();
-
-    try {
-      if (this.adbClient) {
-        const devClient = typeof this.adbClient.getDevice === 'function'
-          ? this.adbClient.getDevice(deviceId)
-          : this.adbClient;
-        if (devClient && typeof devClient.screencap === 'function') {
-          const stream = await devClient.screencap();
-          const buffer = await this.streamToBuffer(stream);
-          if (buffer.length > 1000) {
-            return buffer.toString('base64');
-          }
-        }
-      }
-    } catch (e: any) {
-      // Fallback seamlessly to direct adb exec-out
-    }
-
-    // CLI fallback: screencap to temporary remote file or direct exec
     const bin = this.currentAdbPath || 'adb';
+
     return new Promise((resolve, reject) => {
-      const child = execFile(bin, ['-s', deviceId, 'exec-out', 'screencap', '-p'], {
+      execFile(bin, ['-s', deviceId, 'exec-out', 'screencap', '-p'], {
         encoding: 'buffer',
         maxBuffer: 50 * 1024 * 1024
-      }, (error, stdout) => {
+      }, (error, stdout, stderr) => {
         if (error) {
-          return reject(new Error(`Failed to capture screenshot: ${error.message}`));
+          const errStr = stderr?.toString() || error.message;
+          if (errStr.includes('device not found') || errStr.includes('device offline')) {
+            return reject(new Error(`Dispositivo '${deviceId}' desconectado ou não encontrado. Verifique o cabo USB.`));
+          }
+          if (errStr.includes('device unauthorized')) {
+            return reject(new Error(`Dispositivo '${deviceId}' não autorizado. Aceite a permissão de depuração USB no celular.`));
+          }
+          return reject(new Error(`Falha ao capturar tela: ${errStr}`));
         }
         if (!stdout || stdout.length < 100) {
-          return reject(new Error('Captured screenshot is empty. The screen may be secured or turned off.'));
+          return reject(new Error('A tela capturada está vazia. O aparelho pode estar bloqueado ou com proteção de tela (FLAG_SECURE).'));
         }
         resolve(stdout.toString('base64'));
       });
@@ -308,35 +275,37 @@ export class AdbService {
   async dumpUiHierarchy(deviceId: string): Promise<string> {
     this.ensureClient();
 
-    // 1. Run uiautomator dump
-    const dumpOutput = await this.deviceShell(deviceId, 'uiautomator dump /sdcard/window_dump.xml');
-    if (dumpOutput.includes('ERROR') || dumpOutput.includes('null root node')) {
-      throw new Error(`Failed to dump UI hierarchy: ${dumpOutput}`);
-    }
-
-    // 2. Pull the file
-    let xmlContent = '';
     try {
-      if (this.adbClient) {
-        const transfer = await this.adbClient.pull(deviceId, '/sdcard/window_dump.xml');
-        const buffer = await this.streamToBuffer(transfer);
-        xmlContent = buffer.toString('utf8');
+      // 1. Run uiautomator dump
+      const dumpOutput = await this.deviceShell(deviceId, 'uiautomator dump /sdcard/window_dump.xml');
+      if (dumpOutput.includes('ERROR') || dumpOutput.includes('null root node')) {
+        throw new Error(`Falha no uiautomator dump: ${dumpOutput}`);
       }
-    } catch {
-      // Fallback to cat
-      xmlContent = await this.deviceShell(deviceId, 'cat /sdcard/window_dump.xml');
+
+      // 2. Read file content via exec-out or cat
+      let xmlContent = '';
+      try {
+        xmlContent = await this.execAdbCli(['-s', deviceId, 'exec-out', 'cat', '/sdcard/window_dump.xml']);
+      } catch {
+        xmlContent = await this.deviceShell(deviceId, 'cat /sdcard/window_dump.xml');
+      }
+
+      // 3. Clean up
+      try {
+        await this.deviceShell(deviceId, 'rm -f /sdcard/window_dump.xml');
+      } catch {}
+
+      if (!xmlContent || !xmlContent.includes('<hierarchy')) {
+        throw new Error('XML de hierarquia retornado é inválido ou vazio.');
+      }
+
+      return xmlContent;
+    } catch (err: any) {
+      if (err.message?.includes('device not found') || err.message?.includes('device offline')) {
+        throw new Error(`Dispositivo '${deviceId}' desconectado. Verifique a conexão USB.`);
+      }
+      throw err;
     }
-
-    // 3. Clean up
-    try {
-      await this.deviceShell(deviceId, 'rm -f /sdcard/window_dump.xml');
-    } catch {}
-
-    if (!xmlContent || !xmlContent.includes('<hierarchy')) {
-      throw new Error('Received invalid UI hierarchy XML');
-    }
-
-    return xmlContent;
   }
 
   /**

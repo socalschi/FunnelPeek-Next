@@ -9,6 +9,23 @@ const __dirname = path.dirname(__filename);
 
 let mainWindow: BrowserWindow | null = null;
 
+// Catch and suppress transient TCP socket reset errors (e.g. adb server restart / device disconnect)
+process.on('uncaughtException', (err: any) => {
+  if (err?.code === 'ECONNRESET' || err?.message?.includes('ECONNRESET')) {
+    console.warn('Ignored transient TCP socket reset (ECONNRESET)');
+    return;
+  }
+  console.error('Uncaught Exception in Main Process:', err);
+});
+
+process.on('unhandledRejection', (reason: any) => {
+  if (reason?.code === 'ECONNRESET' || reason?.message?.includes('ECONNRESET')) {
+    console.warn('Ignored transient unhandled rejection (ECONNRESET)');
+    return;
+  }
+  console.error('Unhandled Rejection in Main Process:', reason);
+});
+
 function createWindow() {
   const preloadPath = fs.existsSync(path.join(__dirname, 'preload.cjs'))
     ? path.join(__dirname, 'preload.cjs')

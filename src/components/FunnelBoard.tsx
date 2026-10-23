@@ -220,6 +220,22 @@ export const FunnelBoard: React.FC<FunnelBoardProps> = ({
         </div>
       )}
 
+      {/* Error message banner */}
+      {errorMessage && (
+        <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900 text-xs text-rose-800 dark:text-rose-200 flex items-center justify-between gap-2 shadow-sm animate-in fade-in">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+            <span className="font-medium">{errorMessage}</span>
+          </div>
+          <button
+            onClick={() => setErrorMessage(null)}
+            className="text-xs text-rose-500 hover:text-rose-700 dark:hover:text-rose-300 font-bold px-1.5 py-0.5"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {/* Main Split Area (Canvas on Left, Tree on Right) */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 min-h-0">
         {/* Canvas Section */}

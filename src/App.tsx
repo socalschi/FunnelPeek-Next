@@ -63,16 +63,27 @@ export function App() {
     try {
       const devList = await window.electronAPI.adbGetDevices();
       setDevices(devList);
-      if (devList.length > 0 && !selectedDevice) {
+      if (devList.length === 0) {
+        setSelectedDevice(null);
+      } else if (!selectedDevice || !devList.some(d => d.id === selectedDevice)) {
         setSelectedDevice(devList[0].id);
       }
     } catch (err) {
       console.warn('Refresh devices notice:', err);
+      setDevices([]);
+      setSelectedDevice(null);
     }
   };
 
   useEffect(() => {
     scanAdbAndDevices();
+
+    // Poll devices every 3 seconds to seamlessly detect USB connect/disconnect
+    const interval = setInterval(() => {
+      refreshDevices();
+    }, 3000);
+
+    return () => clearInterval(interval);
   }, []);
 
   // Handle manual/detected ADB selection
