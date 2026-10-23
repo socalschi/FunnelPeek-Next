@@ -60,47 +60,47 @@ export const ElementTree: React.FC<ElementTreeProps> = ({
           style={{ paddingLeft: `${depth * 14 + 8}px` }}
           className={`flex items-center gap-1.5 py-1 px-2 cursor-pointer transition-colors border-l-2 ${
             isSelected
-              ? 'bg-blue-100 dark:bg-blue-950/80 text-blue-900 dark:text-blue-200 border-blue-500 font-medium'
+              ? 'bg-blue-100 dark:bg-jb-accentHover text-blue-900 dark:text-white border-jb-accent font-medium'
               : isHighlighted
-              ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-900 dark:text-amber-200 border-amber-500'
-              : 'hover:bg-slate-100 dark:hover:bg-slate-800/60 border-transparent text-slate-700 dark:text-slate-300'
+              ? 'bg-amber-100 dark:bg-[#332B1A] text-amber-900 dark:text-jb-warning border-jb-warning'
+              : 'hover:bg-slate-100 dark:hover:bg-jb-hover border-transparent text-slate-700 dark:text-jb-text'
           }`}
         >
           {hasChildren ? (
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 dark:text-jb-textMuted shrink-0" />
           ) : (
             <div className="w-3.5 h-3.5 shrink-0" />
           )}
 
           {/* Node Tag & Class */}
-          <span className="text-blue-600 dark:text-blue-400 font-semibold">&lt;{element.tagName}</span>
+          <span className="text-blue-600 dark:text-jb-accent font-semibold">&lt;{element.tagName}</span>
 
           {element.className && (
-            <span className="text-emerald-600 dark:text-emerald-400 truncate max-w-[130px]">
+            <span className="text-emerald-600 dark:text-jb-success truncate max-w-[130px]">
               .{element.className.split('.').pop()}
             </span>
           )}
 
           {/* Text preview */}
           {element.text && (
-            <span className="text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-1 py-0.2 rounded truncate max-w-[120px]">
+            <span className="text-amber-600 dark:text-jb-warning bg-amber-50 dark:bg-[#332B1A] px-1 py-0.2 rounded truncate max-w-[120px]">
               "{element.text}"
             </span>
           )}
 
           {/* Resource ID preview */}
           {element.resourceId && !element.text && (
-            <span className="text-slate-500 dark:text-slate-400 truncate max-w-[100px]">
+            <span className="text-slate-500 dark:text-jb-textMuted truncate max-w-[100px]">
               #{element.resourceId.split('/').pop()}
             </span>
           )}
 
           {/* Bounds */}
-          <span className="text-slate-400 dark:text-slate-500 text-[10px] ml-auto shrink-0">
+          <span className="text-slate-400 dark:text-jb-textMuted text-[10px] ml-auto shrink-0 font-mono">
             {element.bounds}
           </span>
 
-          <span className="text-blue-600 dark:text-blue-400">&gt;</span>
+          <span className="text-blue-600 dark:text-jb-accent">&gt;</span>
         </div>
 
         {/* Children */}
@@ -110,31 +110,31 @@ export const ElementTree: React.FC<ElementTreeProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+    <div className="flex flex-col h-full bg-white dark:bg-jb-panel rounded border border-slate-200 dark:border-jb-border overflow-hidden shadow-xs">
       {/* Search Bar Header */}
-      <div className="p-3 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 space-y-2">
+      <div className="p-2.5 border-b border-slate-200 dark:border-jb-border bg-slate-50 dark:bg-jb-panel space-y-2">
         <div className="flex items-center gap-2">
           <div className="relative flex-1">
-            <Search className="w-4 h-4 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-jb-textMuted" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={searchMode === 'xpath' ? 'XPath query (e.g. //*[@clickable="true"])' : 'Filter by tag, ID, class, text...'}
-              className="w-full pl-8 pr-3 py-1.5 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-8 pr-2.5 py-1 text-xs bg-white dark:bg-jb-elevated border border-slate-200 dark:border-jb-border rounded text-slate-900 dark:text-jb-text placeholder-slate-400 dark:placeholder-jb-textMuted focus:outline-none focus:ring-1 focus:ring-jb-accent"
             />
           </div>
 
-          <div className="flex bg-slate-200 dark:bg-slate-800 p-0.5 rounded-lg text-[11px]">
+          <div className="flex bg-slate-200 dark:bg-jb-bg p-0.5 rounded text-[11px]">
             <button
               onClick={() => setSearchMode('text')}
-              className={`px-2 py-1 rounded-md transition-colors ${searchMode === 'text' ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm font-medium' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'}`}
+              className={`px-2 py-0.5 rounded transition-colors ${searchMode === 'text' ? 'bg-white dark:bg-jb-elevated text-blue-600 dark:text-jb-text shadow-xs font-medium' : 'text-slate-500 dark:text-jb-textMuted hover:text-slate-900 dark:hover:text-jb-text'}`}
             >
               Text
             </button>
             <button
               onClick={() => setSearchMode('xpath')}
-              className={`px-2 py-1 rounded-md transition-colors ${searchMode === 'xpath' ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm font-medium' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'}`}
+              className={`px-2 py-0.5 rounded transition-colors ${searchMode === 'xpath' ? 'bg-white dark:bg-jb-elevated text-blue-600 dark:text-jb-text shadow-xs font-medium' : 'text-slate-500 dark:text-jb-textMuted hover:text-slate-900 dark:hover:text-jb-text'}`}
             >
               XPath
             </button>
@@ -143,16 +143,16 @@ export const ElementTree: React.FC<ElementTreeProps> = ({
       </div>
 
       {/* Tree Content */}
-      <div className="flex-1 overflow-auto p-2">
+      <div className="flex-1 overflow-auto p-1.5">
         {rootElements.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-slate-400 p-4 text-center">
-            <FileText className="w-8 h-8 stroke-1 text-slate-300 dark:text-slate-600 mb-2" />
-            <p className="text-xs">Hierarchy tree is empty.</p>
-            <p className="text-[11px] text-slate-500 mt-0.5">Capture a device screen to inspect the hierarchy.</p>
+          <div className="h-full flex flex-col items-center justify-center text-slate-400 dark:text-jb-textMuted p-4 text-center">
+            <FileText className="w-7 h-7 stroke-1 text-slate-300 dark:text-jb-borderStrong mb-2" />
+            <p className="text-xs text-slate-600 dark:text-jb-text">Hierarchy tree is empty.</p>
+            <p className="text-[11px] text-slate-400 dark:text-jb-textMuted mt-0.5">Capture a device screen to inspect the hierarchy.</p>
           </div>
         ) : isSearching ? (
           <div>
-            <div className="text-[11px] text-slate-400 mb-2 px-2 flex items-center justify-between">
+            <div className="text-[11px] text-slate-400 dark:text-jb-textMuted mb-1.5 px-2 flex items-center justify-between">
               <span>Matches: {filteredElements.length}</span>
             </div>
             {filteredElements.map(el => (
@@ -162,18 +162,18 @@ export const ElementTree: React.FC<ElementTreeProps> = ({
                 onDoubleClick={() => onElementDoubleClick(el.id)}
                 onMouseEnter={() => onElementHover(el.id)}
                 onMouseLeave={() => onElementHover(null)}
-                className={`p-2 rounded-lg mb-1 cursor-pointer font-mono text-xs border ${
+                className={`p-2 rounded mb-1 cursor-pointer font-mono text-xs border ${
                   el.id === selectedElementId
-                    ? 'bg-blue-50 dark:bg-blue-950/80 border-blue-400'
-                    : 'bg-slate-50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 hover:border-blue-300'
+                    ? 'bg-blue-50 dark:bg-jb-accentHover border-jb-accent'
+                    : 'bg-slate-50 dark:bg-jb-elevated/40 border-slate-200 dark:border-jb-border hover:border-jb-borderStrong'
                 }`}
               >
-                <div className="flex items-center justify-between text-blue-600 dark:text-blue-400 font-semibold">
+                <div className="flex items-center justify-between text-blue-600 dark:text-jb-accent font-semibold">
                   <span>&lt;{el.tagName}&gt;</span>
-                  <span className="text-[10px] text-slate-400">{el.bounds}</span>
+                  <span className="text-[10px] text-slate-400 dark:text-jb-textMuted">{el.bounds}</span>
                 </div>
-                {el.resourceId && <p className="text-slate-500 dark:text-slate-400 text-[11px] mt-0.5">ID: {el.resourceId}</p>}
-                {el.text && <p className="text-amber-600 dark:text-amber-400 text-[11px] mt-0.5 font-sans">"{el.text}"</p>}
+                {el.resourceId && <p className="text-slate-500 dark:text-jb-textMuted text-[11px] mt-0.5">ID: {el.resourceId}</p>}
+                {el.text && <p className="text-amber-600 dark:text-jb-warning text-[11px] mt-0.5 font-sans">"{el.text}"</p>}
               </div>
             ))}
           </div>

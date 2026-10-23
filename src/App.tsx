@@ -154,7 +154,7 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors">
+    <div className="min-h-screen bg-slate-100 dark:bg-jb-bg text-slate-900 dark:text-jb-text flex flex-col font-sans transition-colors">
       <Header
         sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}

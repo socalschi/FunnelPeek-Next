@@ -118,16 +118,16 @@ export const CanvasImageRenderer: React.FC<CanvasImageRendererProps> = ({
 
       ctx.save();
       if (isSelected) {
-        ctx.strokeStyle = '#2563eb'; // blue-600
-        ctx.fillStyle = 'rgba(37, 99, 235, 0.25)';
-        ctx.lineWidth = 3 / zoom;
-      } else if (isHighlighted) {
-        ctx.strokeStyle = '#eab308'; // yellow-500
-        ctx.fillStyle = 'rgba(234, 179, 8, 0.3)';
+        ctx.strokeStyle = '#3574F0'; // IntelliJ accent / focus
+        ctx.fillStyle = 'rgba(53, 116, 240, 0.22)';
         ctx.lineWidth = 2.5 / zoom;
+      } else if (isHighlighted) {
+        ctx.strokeStyle = '#F2C55C'; // IntelliJ warning / yellow
+        ctx.fillStyle = 'rgba(242, 197, 92, 0.25)';
+        ctx.lineWidth = 2 / zoom;
       } else {
-        ctx.strokeStyle = 'rgba(239, 68, 68, 0.6)'; // red-500 transparent
-        ctx.fillStyle = 'rgba(239, 68, 68, 0.05)';
+        ctx.strokeStyle = '#E55765'; // IntelliJ error / red outline
+        ctx.fillStyle = 'rgba(229, 87, 101, 0.05)';
         ctx.lineWidth = 1 / zoom;
       }
 
@@ -136,11 +136,11 @@ export const CanvasImageRenderer: React.FC<CanvasImageRendererProps> = ({
 
       // Label on selected
       if (isSelected || isHighlighted) {
-        const label = el.text ? `"${el.text.slice(0, 15)}"` : (el.resourceId?.split('/').pop() || el.tagName);
+        const label = el.text ? `"${el.text.slice(0, 16)}"` : (el.resourceId?.split('/').pop() || el.tagName);
         ctx.font = `${Math.max(11 / zoom, 10)}px monospace`;
-        ctx.fillStyle = isSelected ? '#1e3a8a' : '#713f12';
+        ctx.fillStyle = isSelected ? '#2E436E' : '#393B40';
         ctx.fillRect(el.x1, Math.max(0, el.y1 - 18 / zoom), ctx.measureText(label).width + 6 / zoom, 16 / zoom);
-        ctx.fillStyle = '#ffffff';
+        ctx.fillStyle = isSelected ? '#BCBEC4' : '#F2C55C';
         ctx.fillText(label, el.x1 + 3 / zoom, Math.max(12 / zoom, el.y1 - 5 / zoom));
       }
 
@@ -277,60 +277,60 @@ export const CanvasImageRenderer: React.FC<CanvasImageRendererProps> = ({
   };
 
   return (
-    <div className="relative flex-1 h-full min-h-[480px] bg-slate-100 dark:bg-slate-950 rounded-2xl overflow-hidden flex flex-col border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
+    <div className="relative flex-1 h-full min-h-[480px] bg-slate-100 dark:bg-jb-bg rounded overflow-hidden flex flex-col border border-slate-200 dark:border-jb-border shadow-xs transition-colors">
       {/* Floating Canvas Controls */}
-      <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 p-1 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border border-slate-200 dark:border-slate-700/80 rounded-xl text-slate-700 dark:text-slate-200 shadow-md transition-colors">
+      <div className="absolute top-2.5 left-2.5 z-20 flex items-center gap-1 p-1 bg-white/95 dark:bg-jb-panel/95 backdrop-blur-md border border-slate-200 dark:border-jb-border rounded text-slate-700 dark:text-jb-text shadow-sm transition-colors">
         <button
           onClick={() => setZoom(z => Math.min(z * 1.25, 10))}
-          className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+          className="p-1 rounded hover:bg-slate-100 dark:hover:bg-jb-hover transition-colors"
           title="Zoom In"
         >
-          <ZoomIn className="w-4 h-4" />
+          <ZoomIn className="w-3.5 h-3.5" />
         </button>
         <button
           onClick={() => setZoom(z => Math.max(z * 0.8, 0.1))}
-          className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+          className="p-1 rounded hover:bg-slate-100 dark:hover:bg-jb-hover transition-colors"
           title="Zoom Out"
         >
-          <ZoomOut className="w-4 h-4" />
+          <ZoomOut className="w-3.5 h-3.5" />
         </button>
         <button
           onClick={fitToScreen}
-          className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+          className="p-1 rounded hover:bg-slate-100 dark:hover:bg-jb-hover transition-colors"
           title="Fit to Screen"
         >
-          <Maximize2 className="w-4 h-4" />
+          <Maximize2 className="w-3.5 h-3.5" />
         </button>
         <button
           onClick={resetZoom}
-          className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+          className="p-1 rounded hover:bg-slate-100 dark:hover:bg-jb-hover transition-colors"
           title="Reset Zoom (100%)"
         >
-          <RotateCcw className="w-4 h-4" />
+          <RotateCcw className="w-3.5 h-3.5" />
         </button>
-        <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-700 mx-0.5" />
+        <div className="w-[1px] h-3.5 bg-slate-200 dark:bg-jb-border mx-0.5" />
         <button
           onClick={() => setShowGrid(!showGrid)}
-          className={`p-1.5 rounded-lg transition-colors ${showGrid ? 'bg-blue-600 text-white shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+          className={`p-1 rounded transition-colors ${showGrid ? 'bg-jb-accent text-white shadow-xs' : 'hover:bg-slate-100 dark:hover:bg-jb-hover'}`}
           title="Toggle Grid Overlay"
         >
-          <Grid className="w-4 h-4" />
+          <Grid className="w-3.5 h-3.5" />
         </button>
         <button
           onClick={() => setShowAllRectangles(!showAllRectangles)}
-          className={`p-1.5 rounded-lg transition-colors ${showAllRectangles ? 'bg-blue-600 text-white shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+          className={`p-1 rounded transition-colors ${showAllRectangles ? 'bg-jb-accent text-white shadow-xs' : 'hover:bg-slate-100 dark:hover:bg-jb-hover'}`}
           title="Highlight All Bounding Boxes"
         >
-          <Eye className="w-4 h-4" />
+          <Eye className="w-3.5 h-3.5" />
         </button>
-        <span className="text-xs font-mono px-2 text-slate-500 dark:text-slate-400">
+        <span className="text-[11px] font-mono px-1.5 text-slate-500 dark:text-jb-textMuted">
           {Math.round(zoom * 100)}%
         </span>
       </div>
 
       {/* Coordinate & Dimensions Pill at Bottom */}
       {mousePos && (
-        <div className="absolute bottom-3 left-3 z-20 px-3 py-1 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border border-slate-200 dark:border-slate-700/80 rounded-lg text-xs font-mono text-slate-700 dark:text-slate-300 shadow transition-colors">
+        <div className="absolute bottom-2.5 left-2.5 z-20 px-2 py-0.5 bg-white/95 dark:bg-jb-panel/95 backdrop-blur-md border border-slate-200 dark:border-jb-border rounded text-[11px] font-mono text-slate-700 dark:text-jb-text shadow-xs transition-colors">
           X: {mousePos.imgX} | Y: {mousePos.imgY} ({imageDimensions.width}×{imageDimensions.height})
         </div>
       )}
@@ -351,9 +351,9 @@ export const CanvasImageRenderer: React.FC<CanvasImageRendererProps> = ({
         onContextMenu={(e) => e.preventDefault()}
       >
         {!base64Image ? (
-          <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 p-6 text-center">
-            <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Nenhuma tela inspecionada.</p>
-            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Selecione o aparelho conectado e clique em "Inspect Screen" para analisar a UI.</p>
+          <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 dark:text-jb-textMuted p-6 text-center">
+            <p className="text-sm font-medium text-slate-600 dark:text-jb-text">Nenhuma tela inspecionada.</p>
+            <p className="text-xs text-slate-400 dark:text-jb-textMuted mt-1">Selecione o aparelho conectado e clique em "Inspect Screen" para analisar a UI.</p>
           </div>
         ) : (
           <canvas ref={canvasRef} className="w-full h-full block" />

@@ -44,7 +44,7 @@ function createWindow() {
     },
     icon: path.join(process.env.VITE_PUBLIC || path.join(__dirname, '../public'), 'FP2.png'),
     show: false,
-    backgroundColor: '#0f172a',
+    backgroundColor: '#1E1F22',
     titleBarStyle: 'default',
     title: 'FunnelPeek Next'
   });

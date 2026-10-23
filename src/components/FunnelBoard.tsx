@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { ScanEye, RefreshCw, Smartphone, Download, Upload, Plus, AlertCircle, ShieldAlert, Check } from 'lucide-react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
+import { ScanEye, RefreshCw, Smartphone, Download, Upload, AlertCircle, ShieldAlert, Check } from 'lucide-react';
 import { Device, UIElement, FunnelStep } from '../types/index.ts';
 import { parseHierarchyXml, filterElements, searchByXPath, extractActivePackage, formatBrazilianDateTime } from '../utils/xmlParser.ts';
 import { CanvasImageRenderer } from './CanvasImageRenderer.tsx';
@@ -41,6 +41,48 @@ export const FunnelBoard: React.FC<FunnelBoardProps> = ({
   const [isSecuredScreen, setIsSecuredScreen] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [justAddedToFlow, setJustAddedToFlow] = useState(false);
+
+  // Resizable horizontal split state
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [splitRatio, setSplitRatio] = useState<number>(55);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging || !containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const newRatio = ((e.clientX - rect.left) / rect.width) * 100;
+      if (newRatio >= 20 && newRatio <= 80) {
+        setSplitRatio(newRatio);
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    if (isDragging) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+    } else {
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+  }, [isDragging]);
 
   // Modal state
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
@@ -157,16 +199,16 @@ export const FunnelBoard: React.FC<FunnelBoardProps> = ({
   };
 
   return (
-    <div className="space-y-3 h-[calc(100vh-100px)] flex flex-col w-full">
+    <div className="space-y-2 h-[calc(100vh-80px)] flex flex-col w-full">
       {/* Top Action Bar */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl p-3 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-wrap items-center justify-between gap-3 shrink-0 transition-colors">
+      <div className="bg-white dark:bg-jb-panel rounded p-2 border border-slate-200 dark:border-jb-border shadow-xs flex flex-wrap items-center justify-between gap-2.5 shrink-0 transition-colors">
         {/* Device selector */}
         <div className="flex items-center gap-2">
-          <Smartphone className="w-4 h-4 text-blue-500" />
+          <Smartphone className="w-4 h-4 text-jb-accent" />
           <select
             value={selectedDevice || ''}
             onChange={(e) => setSelectedDevice(e.target.value)}
-            className="text-xs font-semibold py-1.5 px-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="text-xs font-medium py-1 px-2.5 rounded border border-slate-300 dark:border-jb-border bg-white dark:bg-jb-elevated text-slate-800 dark:text-jb-text focus:outline-none focus:ring-1 focus:ring-jb-accent"
           >
             {devices.length === 0 ? (
               <option value="">Nenhum Aparelho Conectado</option>
@@ -181,74 +223,76 @@ export const FunnelBoard: React.FC<FunnelBoardProps> = ({
 
           <button
             onClick={onRefreshDevices}
-            className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors"
+            className="p-1 rounded hover:bg-slate-100 dark:hover:bg-jb-hover text-slate-500 dark:text-jb-textMuted transition-colors"
             title="Atualizar lista de aparelhos"
           >
-            <RefreshCw className="w-4 h-4" />
+            <RefreshCw className="w-3.5 h-3.5" />
           </button>
         </div>
 
-        {/* Action Buttons: Inspect Screen & + Add to Flow */}
+        {/* Action Buttons: Inspect Screen & Add to Flow */}
         <div className="flex items-center gap-2">
           <button
             onClick={handleInspect}
             disabled={isCapturing || !selectedDevice}
-            className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 dark:disabled:bg-slate-800 disabled:text-slate-500 text-white font-semibold text-xs flex items-center gap-2 shadow-md shadow-blue-500/20 transition-all"
+            className="px-3 py-1.5 rounded bg-jb-accent hover:bg-[#2F65D4] disabled:bg-slate-300 dark:disabled:bg-jb-elevated disabled:text-slate-500 dark:disabled:text-jb-textMuted text-white font-medium text-xs flex items-center gap-1.5 shadow-xs transition-colors"
             title="Inspecionar e analisar toda a estrutura da tela atual"
           >
-            <ScanEye className={`w-4 h-4 ${isCapturing ? 'animate-spin' : ''}`} />
+            <ScanEye className={`w-3.5 h-3.5 ${isCapturing ? 'animate-spin' : ''}`} />
             {isCapturing ? 'Analisando Tela...' : 'Inspect Screen'}
           </button>
 
           {capturedImage && onAddToFlow && (
             <button
               onClick={handleAddCurrentToFlow}
-              className={`px-3.5 py-2 rounded-xl font-semibold text-xs flex items-center gap-1.5 border transition-all shadow-sm ${
+              className={`px-3 py-1.5 rounded font-medium text-xs flex items-center gap-1.5 border transition-all ${
                 justAddedToFlow
-                  ? 'bg-emerald-600 text-white border-emerald-600'
-                  : 'bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800'
+                  ? 'bg-jb-success text-white border-jb-success'
+                  : 'bg-slate-50 dark:bg-jb-elevated hover:bg-slate-100 dark:hover:bg-jb-hover text-slate-800 dark:text-jb-text border-slate-300 dark:border-jb-border'
               }`}
               title="Salvar estrutura completa no Funnel Flow para análise posterior"
             >
-              {justAddedToFlow ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
-              {justAddedToFlow ? 'Salvo no Flow!' : '+ Add to Flow'}
+              {justAddedToFlow && <Check className="w-3.5 h-3.5 text-white" />}
+              {justAddedToFlow ? 'Salvo no Flow!' : 'Add to Flow'}
             </button>
           )}
 
-          <div className="w-[1px] h-5 bg-slate-200 dark:bg-slate-800 mx-1" />
+          <div className="w-[1px] h-4 bg-slate-200 dark:bg-jb-border mx-0.5" />
 
+          {/* Download Icon: Carregar pacote .zip existente */}
+          <button
+            onClick={handleLoadZip}
+            className="p-1.5 rounded border border-slate-200 dark:border-jb-border hover:bg-slate-100 dark:hover:bg-jb-hover text-slate-600 dark:text-jb-text transition-colors"
+            title="Carregar pacote .zip existente"
+          >
+            <Download className="w-3.5 h-3.5" />
+          </button>
+
+          {/* Upload Icon: Salvar inspeção como pacote .zip */}
           <button
             onClick={handleSaveZip}
             disabled={!capturedImage}
-            className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 disabled:opacity-40 transition-colors"
+            className="p-1.5 rounded border border-slate-200 dark:border-jb-border hover:bg-slate-100 dark:hover:bg-jb-hover text-slate-600 dark:text-jb-text disabled:opacity-40 transition-colors"
             title="Salvar inspeção como pacote .zip"
           >
-            <Download className="w-4 h-4" />
-          </button>
-
-          <button
-            onClick={handleLoadZip}
-            className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors"
-            title="Carregar pacote .zip existente"
-          >
-            <Upload className="w-4 h-4" />
+            <Upload className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
 
       {/* Security alert if screen is black/secured */}
       {isSecuredScreen && (
-        <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-900 text-xs text-amber-800 dark:text-amber-300 flex items-center gap-2 shrink-0">
-          <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0" />
+        <div className="p-2.5 rounded bg-amber-50 dark:bg-[#332B1A] border border-amber-200 dark:border-jb-warning/40 text-xs text-amber-800 dark:text-jb-warning flex items-center gap-2 shrink-0">
+          <ShieldAlert className="w-4 h-4 text-amber-600 dark:text-jb-warning shrink-0" />
           <span>Tela com proteção (FLAG_SECURE ou bloqueada). A árvore hierárquica XML ainda foi inspecionada!</span>
         </div>
       )}
 
       {/* Error message banner */}
       {errorMessage && (
-        <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900 text-xs text-rose-800 dark:text-rose-200 flex items-center justify-between gap-2 shadow-sm animate-in fade-in shrink-0">
+        <div className="p-2.5 rounded bg-rose-50 dark:bg-[#351E20] border border-rose-200 dark:border-jb-error/40 text-xs text-rose-800 dark:text-jb-error flex items-center justify-between gap-2 shadow-xs shrink-0">
           <div className="flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+            <AlertCircle className="w-4 h-4 text-rose-600 dark:text-jb-error shrink-0" />
             <span className="font-medium">{errorMessage}</span>
           </div>
           <button
@@ -260,10 +304,16 @@ export const FunnelBoard: React.FC<FunnelBoardProps> = ({
         </div>
       )}
 
-      {/* Main Split Area (Canvas on Left, Tree on Right) */}
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 min-h-0">
+      {/* Main Split Area (Canvas on Left, Tree on Right) with Horizontal Resizer */}
+      <div
+        ref={containerRef}
+        className="flex-1 flex flex-col md:flex-row gap-0 min-h-0 w-full relative"
+      >
         {/* Canvas Section */}
-        <div className="lg:col-span-7 h-full flex flex-col min-h-0">
+        <div
+          style={{ width: `${splitRatio}%` }}
+          className={`h-full flex flex-col min-h-0 overflow-hidden pr-1 ${isDragging ? 'pointer-events-none' : ''}`}
+        >
           <CanvasImageRenderer
             base64Image={capturedImage}
             elements={allElements}
@@ -285,8 +335,22 @@ export const FunnelBoard: React.FC<FunnelBoardProps> = ({
           />
         </div>
 
+        {/* Resizable Splitter Handle */}
+        <div
+          onMouseDown={handleMouseDown}
+          className="w-2 relative flex items-center justify-center cursor-col-resize hover:bg-jb-accent/30 active:bg-jb-accent group select-none shrink-0 transition-colors z-10"
+          title="Arraste para redimensionar telas de preview e estrutura"
+        >
+          <div className="w-[1px] h-full bg-slate-200 dark:bg-jb-border group-hover:bg-jb-accent transition-colors flex items-center justify-center">
+            <div className="w-1 h-8 rounded-full bg-slate-400 dark:bg-jb-textMuted group-hover:bg-white" />
+          </div>
+        </div>
+
         {/* Hierarchy Tree Section */}
-        <div className="lg:col-span-5 h-full flex flex-col min-h-0">
+        <div
+          style={{ width: `${100 - splitRatio}%` }}
+          className={`h-full flex flex-col min-h-0 overflow-hidden pl-1 ${isDragging ? 'pointer-events-none' : ''}`}
+        >
           <ElementTree
             rootElements={rootElements}
             filteredElements={filteredElements}

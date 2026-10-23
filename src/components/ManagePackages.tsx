@@ -107,16 +107,16 @@ export const ManagePackages: React.FC<ManagePackagesProps> = ({
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-4">
+    <div className="max-w-6xl mx-auto space-y-3">
       {/* Top Controls Bar */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-wrap items-center justify-between gap-3">
+      <div className="bg-white dark:bg-jb-panel rounded p-3 border border-slate-200 dark:border-jb-border shadow-xs flex flex-wrap items-center justify-between gap-3">
         {/* Device selector */}
         <div className="flex items-center gap-2">
-          <Smartphone className="w-4 h-4 text-blue-500" />
+          <Smartphone className="w-4 h-4 text-jb-accent" />
           <select
             value={selectedDevice || ''}
             onChange={(e) => setSelectedDevice(e.target.value)}
-            className="text-xs font-medium py-1.5 px-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="text-xs font-medium py-1 px-2.5 rounded border border-slate-300 dark:border-jb-border bg-white dark:bg-jb-elevated text-slate-800 dark:text-jb-text focus:outline-none focus:ring-1 focus:ring-jb-accent"
           >
             {devices.length === 0 ? (
               <option value="">No Devices Connected</option>
@@ -132,10 +132,10 @@ export const ManagePackages: React.FC<ManagePackagesProps> = ({
           <button
             onClick={loadPackages}
             disabled={isLoading || !selectedDevice}
-            className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors"
+            className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-jb-hover text-slate-500 dark:text-jb-textMuted transition-colors"
             title="Refresh packages"
           >
-            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin text-blue-500' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin text-jb-accent' : ''}`} />
           </button>
         </div>
 
@@ -144,7 +144,7 @@ export const ManagePackages: React.FC<ManagePackagesProps> = ({
           <button
             onClick={handleInstallApk}
             disabled={isActionInProgress || !selectedDevice}
-            className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white font-medium text-xs flex items-center gap-1.5 shadow-sm transition-colors"
+            className="px-3.5 py-1.5 rounded bg-jb-accent hover:bg-[#2F65D4] disabled:bg-slate-400 dark:disabled:bg-jb-elevated text-white font-medium text-xs flex items-center gap-1.5 shadow-xs transition-colors"
           >
             <Upload className="w-3.5 h-3.5" />
             Install APK
@@ -154,7 +154,7 @@ export const ManagePackages: React.FC<ManagePackagesProps> = ({
             <button
               onClick={handleUninstallSelected}
               disabled={isActionInProgress}
-              className="px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 disabled:bg-slate-400 text-white font-medium text-xs flex items-center gap-1.5 shadow-sm transition-colors"
+              className="px-3.5 py-1.5 rounded bg-rose-600 hover:bg-rose-700 disabled:bg-slate-400 text-white font-medium text-xs flex items-center gap-1.5 shadow-xs transition-colors"
             >
               <Trash2 className="w-3.5 h-3.5" />
               Uninstall ({selectedPackages.size})
@@ -164,37 +164,37 @@ export const ManagePackages: React.FC<ManagePackagesProps> = ({
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
+      <div className="bg-white dark:bg-jb-panel rounded p-3.5 border border-slate-200 dark:border-jb-border shadow-xs space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           {/* Search box */}
           <div className="relative flex-1 min-w-[240px]">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-jb-textMuted" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search package name (e.g. com.whatsapp)..."
-              className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 dark:bg-jb-elevated border border-slate-200 dark:border-jb-border rounded text-slate-900 dark:text-jb-text placeholder-slate-400 dark:placeholder-jb-textMuted focus:outline-none focus:ring-1 focus:ring-jb-accent"
             />
           </div>
 
           {/* Filter Pills */}
-          <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl text-xs">
+          <div className="flex bg-slate-100 dark:bg-jb-bg p-0.5 rounded text-xs">
             <button
               onClick={() => setFilterType('thirdParty')}
-              className={`px-3 py-1.5 rounded-lg transition-colors ${filterType === 'thirdParty' ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm font-semibold' : 'text-slate-500'}`}
+              className={`px-3 py-1 rounded transition-colors ${filterType === 'thirdParty' ? 'bg-white dark:bg-jb-elevated text-blue-600 dark:text-jb-text shadow-xs font-semibold' : 'text-slate-500 dark:text-jb-textMuted hover:text-slate-900 dark:hover:text-jb-text'}`}
             >
               User Apps (3rd-Party)
             </button>
             <button
               onClick={() => setFilterType('system')}
-              className={`px-3 py-1.5 rounded-lg transition-colors ${filterType === 'system' ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm font-semibold' : 'text-slate-500'}`}
+              className={`px-3 py-1 rounded transition-colors ${filterType === 'system' ? 'bg-white dark:bg-jb-elevated text-blue-600 dark:text-jb-text shadow-xs font-semibold' : 'text-slate-500 dark:text-jb-textMuted hover:text-slate-900 dark:hover:text-jb-text'}`}
             >
               System Apps
             </button>
             <button
               onClick={() => setFilterType('all')}
-              className={`px-3 py-1.5 rounded-lg transition-colors ${filterType === 'all' ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm font-semibold' : 'text-slate-500'}`}
+              className={`px-3 py-1 rounded transition-colors ${filterType === 'all' ? 'bg-white dark:bg-jb-elevated text-blue-600 dark:text-jb-text shadow-xs font-semibold' : 'text-slate-500 dark:text-jb-textMuted hover:text-slate-900 dark:hover:text-jb-text'}`}
             >
               All Packages
             </button>
@@ -203,10 +203,10 @@ export const ManagePackages: React.FC<ManagePackagesProps> = ({
 
         {/* Status Toast */}
         {statusMessage && (
-          <div className={`p-3 rounded-xl text-xs font-medium flex items-center gap-2 ${
+          <div className={`p-2.5 rounded text-xs font-medium flex items-center gap-2 border ${
             statusMessage.type === 'success'
-              ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-              : 'bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800'
+              ? 'bg-emerald-50 dark:bg-[#1E3326] text-emerald-800 dark:text-jb-success border-emerald-200 dark:border-[#2B543A]'
+              : 'bg-rose-50 dark:bg-[#351E20] text-rose-800 dark:text-jb-error border-rose-200 dark:border-[#52282C]'
           }`}>
             {statusMessage.type === 'success' ? <CheckCircle2 className="w-4 h-4 shrink-0" /> : <AlertCircle className="w-4 h-4 shrink-0" />}
             <span>{statusMessage.text}</span>
@@ -214,14 +214,14 @@ export const ManagePackages: React.FC<ManagePackagesProps> = ({
         )}
 
         {/* Table / List */}
-        <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
-          <div className="bg-slate-50 dark:bg-slate-800/60 px-4 py-2.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs font-semibold text-slate-600 dark:text-slate-300">
+        <div className="border border-slate-200 dark:border-jb-border rounded overflow-hidden">
+          <div className="bg-slate-50 dark:bg-jb-elevated/40 px-3.5 py-2 border-b border-slate-200 dark:border-jb-border flex items-center justify-between text-xs font-semibold text-slate-600 dark:text-jb-text">
             <div className="flex items-center gap-2">
-              <button onClick={selectAll} className="p-1 hover:text-blue-500 transition-colors">
+              <button onClick={selectAll} className="p-1 hover:text-jb-accent transition-colors">
                 {selectedPackages.size > 0 && selectedPackages.size === filteredPackages.length ? (
-                  <CheckSquare className="w-4 h-4 text-blue-600" />
+                  <CheckSquare className="w-4 h-4 text-jb-accent" />
                 ) : (
-                  <Square className="w-4 h-4 text-slate-400" />
+                  <Square className="w-4 h-4 text-slate-400 dark:text-jb-textMuted" />
                 )}
               </button>
               <span>Package Name ({filteredPackages.length})</span>
@@ -229,9 +229,9 @@ export const ManagePackages: React.FC<ManagePackagesProps> = ({
             <span>Actions</span>
           </div>
 
-          <div className="divide-y divide-slate-100 dark:divide-slate-800/80 max-h-[500px] overflow-y-auto">
+          <div className="divide-y divide-slate-100 dark:divide-jb-border/60 max-h-[500px] overflow-y-auto">
             {filteredPackages.length === 0 ? (
-              <div className="p-8 text-center text-slate-400 text-xs">
+              <div className="p-8 text-center text-slate-400 dark:text-jb-textMuted text-xs">
                 {isLoading ? 'Scanning packages from device...' : 'No packages found matching filter.'}
               </div>
             ) : (
@@ -241,27 +241,27 @@ export const ManagePackages: React.FC<ManagePackagesProps> = ({
                 return (
                   <div
                     key={pkg.packageName}
-                    className={`px-4 py-2.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors text-xs ${
-                      isSelected ? 'bg-blue-50/60 dark:bg-blue-950/40' : ''
+                    className={`px-3.5 py-2 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-jb-hover transition-colors text-xs ${
+                      isSelected ? 'bg-blue-50/60 dark:bg-jb-accentHover/50' : ''
                     }`}
                   >
                     <div className="flex items-center gap-3 min-w-0 flex-1">
                       <button
                         onClick={() => toggleSelectPackage(pkg.packageName)}
-                        className="text-slate-400 hover:text-blue-500 transition-colors"
+                        className="text-slate-400 dark:text-jb-textMuted hover:text-jb-accent transition-colors"
                       >
                         {isSelected ? (
-                          <CheckSquare className="w-4 h-4 text-blue-600" />
+                          <CheckSquare className="w-4 h-4 text-jb-accent" />
                         ) : (
                           <Square className="w-4 h-4" />
                         )}
                       </button>
 
                       <div className="min-w-0">
-                        <span className="font-mono text-slate-900 dark:text-slate-100 font-medium truncate block">
+                        <span className="font-mono text-slate-900 dark:text-jb-text font-medium truncate block">
                           {pkg.packageName}
                         </span>
-                        <span className="text-[11px] text-slate-400">
+                        <span className="text-[11px] text-slate-400 dark:text-jb-textMuted">
                           App: {pkg.displayName}
                         </span>
                       </div>
@@ -279,10 +279,10 @@ export const ManagePackages: React.FC<ManagePackagesProps> = ({
                           }
                         }
                       }}
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors"
+                      className="p-1 rounded text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-[#351E20] transition-colors"
                       title="Uninstall app"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 );

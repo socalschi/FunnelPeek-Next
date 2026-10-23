@@ -90,58 +90,58 @@ export const ElementDetailsModal: React.FC<ElementDetailsModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="w-full max-w-3xl max-h-[85vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+      <div className="w-full max-w-3xl max-h-[85vh] bg-white dark:bg-jb-elevated rounded-lg shadow-xl border border-slate-200 dark:border-jb-border flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
         {/* Header */}
-        <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/40">
+        <div className="p-3.5 border-b border-slate-200 dark:border-jb-border flex items-center justify-between bg-slate-50 dark:bg-jb-panel">
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-mono text-xs px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 font-semibold">
+              <span className="font-mono text-xs px-2 py-0.5 rounded bg-blue-100 dark:bg-jb-hover text-blue-700 dark:text-jb-accent font-semibold border border-blue-200 dark:border-jb-border">
                 &lt;{element.tagName}&gt;
               </span>
-              <h2 className="text-base font-bold text-slate-900 dark:text-white">
+              <h2 className="text-sm font-bold text-slate-900 dark:text-jb-text">
                 {element.resourceId?.split('/').pop() || element.className.split('.').pop() || 'Element Details'}
               </h2>
             </div>
-            <p className="text-xs text-slate-500 font-mono mt-0.5">{element.bounds}</p>
+            <p className="text-xs text-slate-500 dark:text-jb-textMuted font-mono mt-0.5">{element.bounds}</p>
           </div>
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 transition-colors"
+            className="p-1 rounded hover:bg-slate-200 dark:hover:bg-jb-hover text-slate-500 dark:text-jb-text transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Tabs Bar */}
-        <div className="flex border-b border-slate-200 dark:border-slate-800 px-4 bg-white dark:bg-slate-900 text-xs">
+        <div className="flex border-b border-slate-200 dark:border-jb-border px-4 bg-white dark:bg-jb-panel text-xs">
           <button
             onClick={() => setActiveTab('properties')}
-            className={`py-2.5 px-3 font-medium border-b-2 transition-colors ${
+            className={`py-2 px-3 font-medium border-b-2 transition-colors ${
               activeTab === 'properties'
-                ? 'border-blue-600 text-blue-600 dark:text-blue-400'
-                : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                ? 'border-jb-accent text-blue-600 dark:text-jb-accent'
+                : 'border-transparent text-slate-500 dark:text-jb-textMuted hover:text-slate-800 dark:hover:text-jb-text'
             }`}
           >
             Attributes & Properties
           </button>
           <button
             onClick={() => setActiveTab('automation')}
-            className={`py-2.5 px-3 font-medium border-b-2 transition-colors ${
+            className={`py-2 px-3 font-medium border-b-2 transition-colors ${
               activeTab === 'automation'
-                ? 'border-blue-600 text-blue-600 dark:text-blue-400'
-                : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                ? 'border-jb-accent text-blue-600 dark:text-jb-accent'
+                : 'border-transparent text-slate-500 dark:text-jb-textMuted hover:text-slate-800 dark:hover:text-jb-text'
             }`}
           >
             Automation Selectors
           </button>
           <button
             onClick={() => setActiveTab('interaction')}
-            className={`py-2.5 px-3 font-medium border-b-2 transition-colors ${
+            className={`py-2 px-3 font-medium border-b-2 transition-colors ${
               activeTab === 'interaction'
-                ? 'border-blue-600 text-blue-600 dark:text-blue-400'
-                : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                ? 'border-jb-accent text-blue-600 dark:text-jb-accent'
+                : 'border-transparent text-slate-500 dark:text-jb-textMuted hover:text-slate-800 dark:hover:text-jb-text'
             }`}
           >
             Remote Control & Actions
@@ -149,63 +149,63 @@ export const ElementDetailsModal: React.FC<ElementDetailsModalProps> = ({
         </div>
 
         {/* Tab Body */}
-        <div className="flex-1 overflow-y-auto p-5">
+        <div className="flex-1 overflow-y-auto p-4">
           {activeTab === 'properties' && (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {/* String Attributes */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800">
-                  <span className="text-slate-500 font-medium">Resource ID</span>
-                  <p className="font-mono text-slate-800 dark:text-slate-200 font-semibold break-all mt-1">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 text-xs">
+                <div className="p-2.5 rounded bg-slate-50 dark:bg-jb-panel border border-slate-200 dark:border-jb-border">
+                  <span className="text-slate-500 dark:text-jb-textMuted font-medium text-[11px]">Resource ID</span>
+                  <p className="font-mono text-slate-800 dark:text-jb-text font-semibold break-all mt-0.5">
                     {element.resourceId || 'None'}
                   </p>
                 </div>
 
-                <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800">
-                  <span className="text-slate-500 font-medium">Text</span>
-                  <p className="text-amber-600 dark:text-amber-400 font-semibold mt-1">
+                <div className="p-2.5 rounded bg-slate-50 dark:bg-jb-panel border border-slate-200 dark:border-jb-border">
+                  <span className="text-slate-500 dark:text-jb-textMuted font-medium text-[11px]">Text</span>
+                  <p className="text-amber-600 dark:text-jb-warning font-semibold mt-0.5">
                     {element.text ? `"${element.text}"` : 'None'}
                   </p>
                 </div>
 
-                <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800">
-                  <span className="text-slate-500 font-medium">Class Name</span>
-                  <p className="font-mono text-emerald-600 dark:text-emerald-400 font-semibold break-all mt-1">
+                <div className="p-2.5 rounded bg-slate-50 dark:bg-jb-panel border border-slate-200 dark:border-jb-border">
+                  <span className="text-slate-500 dark:text-jb-textMuted font-medium text-[11px]">Class Name</span>
+                  <p className="font-mono text-emerald-600 dark:text-jb-success font-semibold break-all mt-0.5">
                     {element.className || 'None'}
                   </p>
                 </div>
 
-                <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800">
-                  <span className="text-slate-500 font-medium">Content Description</span>
-                  <p className="text-slate-800 dark:text-slate-200 font-semibold mt-1">
+                <div className="p-2.5 rounded bg-slate-50 dark:bg-jb-panel border border-slate-200 dark:border-jb-border">
+                  <span className="text-slate-500 dark:text-jb-textMuted font-medium text-[11px]">Content Description</span>
+                  <p className="text-slate-800 dark:text-jb-text font-semibold mt-0.5">
                     {element.contentDesc || 'None'}
                   </p>
                 </div>
 
-                <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800">
-                  <span className="text-slate-500 font-medium">Package</span>
-                  <p className="font-mono text-slate-800 dark:text-slate-200 mt-1">{element.package || 'None'}</p>
+                <div className="p-2.5 rounded bg-slate-50 dark:bg-jb-panel border border-slate-200 dark:border-jb-border">
+                  <span className="text-slate-500 dark:text-jb-textMuted font-medium text-[11px]">Package</span>
+                  <p className="font-mono text-slate-800 dark:text-jb-text mt-0.5">{element.package || 'None'}</p>
                 </div>
 
-                <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800">
-                  <span className="text-slate-500 font-medium">Dimensions & Center</span>
-                  <p className="font-mono text-slate-800 dark:text-slate-200 mt-1">
+                <div className="p-2.5 rounded bg-slate-50 dark:bg-jb-panel border border-slate-200 dark:border-jb-border">
+                  <span className="text-slate-500 dark:text-jb-textMuted font-medium text-[11px]">Dimensions & Center</span>
+                  <p className="font-mono text-slate-800 dark:text-jb-text mt-0.5">
                     {element.width}×{element.height} px (Center: {Math.round((element.x1 + element.x2) / 2)}, {Math.round((element.y1 + element.y2) / 2)})
                   </p>
                 </div>
               </div>
 
               {/* Boolean Flags */}
-              <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800">
-                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-2">Boolean Properties</span>
+              <div className="p-2.5 rounded bg-slate-50 dark:bg-jb-panel border border-slate-200 dark:border-jb-border">
+                <span className="text-xs font-semibold text-slate-700 dark:text-jb-text block mb-2">Boolean Properties</span>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
                   {Object.entries(element.properties).map(([key, val]) => (
-                    <div key={key} className="flex items-center justify-between p-2 rounded bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-                      <span className="text-slate-500 font-mono text-[11px]">{key.replace(/^is/, '')}</span>
-                      <span className={`text-[11px] font-bold px-1.5 py-0.5 rounded ${
+                    <div key={key} className="flex items-center justify-between p-1.5 rounded bg-white dark:bg-jb-elevated border border-slate-200 dark:border-jb-border">
+                      <span className="text-slate-500 dark:text-jb-textMuted font-mono text-[11px]">{key.replace(/^is/, '')}</span>
+                      <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded ${
                         val
-                          ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400'
-                          : 'bg-slate-100 dark:bg-slate-800 text-slate-400'
+                          ? 'bg-emerald-100 dark:bg-[#1E3326] text-emerald-700 dark:text-jb-success'
+                          : 'bg-slate-100 dark:bg-jb-hover text-slate-400 dark:text-jb-textMuted'
                       }`}>
                         {val ? 'true' : 'false'}
                       </span>
@@ -217,23 +217,23 @@ export const ElementDetailsModal: React.FC<ElementDetailsModalProps> = ({
           )}
 
           {activeTab === 'automation' && (
-            <div className="space-y-3">
-              <p className="text-xs text-slate-500">
+            <div className="space-y-2.5">
+              <p className="text-xs text-slate-500 dark:text-jb-textMuted">
                 Copy ready-to-use locators for automated testing and scraping scripts.
               </p>
 
               {selectors.map((item, idx) => (
-                <div key={idx} className="p-3 rounded-xl bg-slate-900 text-slate-100 font-mono text-xs border border-slate-800">
-                  <div className="flex items-center justify-between mb-1.5 text-slate-400 font-sans">
-                    <span className="text-[11px] font-medium text-blue-400">{item.framework} • {item.label}</span>
+                <div key={idx} className="p-2.5 rounded bg-slate-900 dark:bg-jb-bg text-slate-100 dark:text-jb-text font-mono text-xs border border-slate-800 dark:border-jb-border">
+                  <div className="flex items-center justify-between mb-1 text-slate-400 dark:text-jb-textMuted font-sans">
+                    <span className="text-[11px] font-medium text-jb-accent">{item.framework} • {item.label}</span>
                     <button
                       onClick={() => copyToClipboard(item.code, idx)}
-                      className="flex items-center gap-1 px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] transition-colors"
+                      className="flex items-center gap-1 px-2 py-0.5 rounded bg-slate-800 dark:bg-jb-panel hover:bg-slate-700 dark:hover:bg-jb-hover text-slate-300 dark:text-jb-text text-[11px] border border-transparent dark:border-jb-border transition-colors"
                     >
                       {copiedIndex === idx ? (
                         <>
-                          <Check className="w-3 h-3 text-emerald-400" />
-                          <span className="text-emerald-400">Copied</span>
+                          <Check className="w-3 h-3 text-jb-success" />
+                          <span className="text-jb-success">Copied</span>
                         </>
                       ) : (
                         <>
@@ -243,27 +243,27 @@ export const ElementDetailsModal: React.FC<ElementDetailsModalProps> = ({
                       )}
                     </button>
                   </div>
-                  <pre className="text-emerald-300 whitespace-pre-wrap break-all">{item.code}</pre>
+                  <pre className="text-emerald-300 dark:text-jb-success whitespace-pre-wrap break-all">{item.code}</pre>
                 </div>
               ))}
             </div>
           )}
 
           {activeTab === 'interaction' && (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {/* Tap button */}
               <button
                 onClick={handleTap}
                 disabled={isExecuting || !deviceId}
-                className="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-400 text-white font-semibold flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 transition-all text-sm"
+                className="w-full py-2.5 px-4 rounded bg-jb-accent hover:bg-[#2F65D4] disabled:bg-slate-400 dark:disabled:bg-jb-panel text-white font-medium flex items-center justify-center gap-2 shadow-xs transition-all text-xs"
               >
                 <Touchpad className="w-4 h-4" />
-                Tap This Element Center ({Math.round((element.x1 + element.x2) / 2)}, {Math.round((element.y1 + element.y2) / 2)})
+                Tap Center ({Math.round((element.x1 + element.x2) / 2)}, {Math.round((element.y1 + element.y2) / 2)})
               </button>
 
               {/* Text Input */}
-              <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 space-y-2">
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
+              <div className="p-3 rounded bg-slate-50 dark:bg-jb-panel border border-slate-200 dark:border-jb-border space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700 dark:text-jb-text block">
                   Send Text (Focuses & Types)
                 </label>
                 <div className="flex gap-2">
@@ -273,12 +273,12 @@ export const ElementDetailsModal: React.FC<ElementDetailsModalProps> = ({
                     onChange={(e) => setTextInput(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSendText()}
                     placeholder="Enter text to type..."
-                    className="flex-1 px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 px-3 py-1.5 text-xs rounded border border-slate-300 dark:border-jb-border bg-white dark:bg-jb-elevated text-slate-900 dark:text-jb-text placeholder-slate-400 dark:placeholder-jb-textMuted focus:outline-none focus:ring-1 focus:ring-jb-accent"
                   />
                   <button
                     onClick={handleSendText}
                     disabled={isExecuting || !textInput.trim() || !deviceId}
-                    className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white font-medium text-xs flex items-center gap-1.5 transition-colors"
+                    className="px-3.5 py-1.5 rounded bg-jb-accent hover:bg-[#2F65D4] disabled:bg-slate-400 dark:disabled:bg-jb-elevated text-white font-medium text-xs flex items-center gap-1.5 transition-colors"
                   >
                     <Send className="w-3.5 h-3.5" />
                     Send
@@ -287,55 +287,55 @@ export const ElementDetailsModal: React.FC<ElementDetailsModalProps> = ({
               </div>
 
               {/* Hardware navigation keys */}
-              <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 space-y-2">
-                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">Hardware Keys</span>
-                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+              <div className="p-3 rounded bg-slate-50 dark:bg-jb-panel border border-slate-200 dark:border-jb-border space-y-1.5">
+                <span className="text-xs font-semibold text-slate-700 dark:text-jb-text block">Hardware Keys</span>
+                <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
                   <button
                     onClick={() => handleKey('KEYCODE_BACK')}
                     disabled={isExecuting || !deviceId}
-                    className="p-2 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-xs font-medium flex flex-col items-center gap-1 transition-colors"
+                    className="p-2 rounded bg-white dark:bg-jb-elevated hover:bg-slate-100 dark:hover:bg-jb-hover border border-slate-200 dark:border-jb-border text-xs font-medium text-slate-700 dark:text-jb-text flex flex-col items-center gap-1 transition-colors"
                   >
-                    <ArrowLeft className="w-3.5 h-3.5 text-blue-500" />
+                    <ArrowLeft className="w-3.5 h-3.5 text-jb-accent" />
                     Back
                   </button>
                   <button
                     onClick={() => handleKey('KEYCODE_HOME')}
                     disabled={isExecuting || !deviceId}
-                    className="p-2 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-xs font-medium flex flex-col items-center gap-1 transition-colors"
+                    className="p-2 rounded bg-white dark:bg-jb-elevated hover:bg-slate-100 dark:hover:bg-jb-hover border border-slate-200 dark:border-jb-border text-xs font-medium text-slate-700 dark:text-jb-text flex flex-col items-center gap-1 transition-colors"
                   >
-                    <Home className="w-3.5 h-3.5 text-amber-500" />
+                    <Home className="w-3.5 h-3.5 text-jb-warning" />
                     Home
                   </button>
                   <button
                     onClick={() => handleKey('KEYCODE_ENTER')}
                     disabled={isExecuting || !deviceId}
-                    className="p-2 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-xs font-medium flex flex-col items-center gap-1 transition-colors"
+                    className="p-2 rounded bg-white dark:bg-jb-elevated hover:bg-slate-100 dark:hover:bg-jb-hover border border-slate-200 dark:border-slate-800 text-xs font-medium text-slate-700 dark:text-jb-text flex flex-col items-center gap-1 transition-colors"
                   >
-                    <CornerDownLeft className="w-3.5 h-3.5 text-emerald-500" />
+                    <CornerDownLeft className="w-3.5 h-3.5 text-jb-success" />
                     Enter
                   </button>
                   <button
                     onClick={() => handleKey('KEYCODE_DEL')}
                     disabled={isExecuting || !deviceId}
-                    className="p-2 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-xs font-medium flex flex-col items-center gap-1 transition-colors"
+                    className="p-2 rounded bg-white dark:bg-jb-elevated hover:bg-slate-100 dark:hover:bg-jb-hover border border-slate-200 dark:border-slate-800 text-xs font-medium text-slate-700 dark:text-jb-text flex flex-col items-center gap-1 transition-colors"
                   >
-                    <Delete className="w-3.5 h-3.5 text-rose-500" />
+                    <Delete className="w-3.5 h-3.5 text-jb-error" />
                     Backspace
                   </button>
                   <button
                     onClick={() => handleKey('KEYCODE_APP_SWITCH')}
                     disabled={isExecuting || !deviceId}
-                    className="p-2 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-xs font-medium flex flex-col items-center gap-1 transition-colors"
+                    className="p-2 rounded bg-white dark:bg-jb-elevated hover:bg-slate-100 dark:hover:bg-jb-hover border border-slate-200 dark:border-slate-800 text-xs font-medium text-slate-700 dark:text-jb-text flex flex-col items-center gap-1 transition-colors"
                   >
-                    <Layers className="w-3.5 h-3.5 text-purple-500" />
+                    <Layers className="w-3.5 h-3.5 text-jb-accent" />
                     Recents
                   </button>
                   <button
                     onClick={() => handleKey('KEYCODE_MENU')}
                     disabled={isExecuting || !deviceId}
-                    className="p-2 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-xs font-medium flex flex-col items-center gap-1 transition-colors"
+                    className="p-2 rounded bg-white dark:bg-jb-elevated hover:bg-slate-100 dark:hover:bg-jb-hover border border-slate-200 dark:border-slate-800 text-xs font-medium text-slate-700 dark:text-jb-text flex flex-col items-center gap-1 transition-colors"
                   >
-                    <Menu className="w-3.5 h-3.5 text-slate-500" />
+                    <Menu className="w-3.5 h-3.5 text-slate-500 dark:text-jb-textMuted" />
                     Menu
                   </button>
                 </div>
@@ -343,10 +343,10 @@ export const ElementDetailsModal: React.FC<ElementDetailsModalProps> = ({
 
               {/* Status Message */}
               {actionStatus && (
-                <div className={`p-3 rounded-lg text-xs font-medium ${
+                <div className={`p-2.5 rounded text-xs font-medium border ${
                   actionStatus.success
-                    ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                    : 'bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800'
+                    ? 'bg-emerald-50 dark:bg-[#1E3326] text-emerald-800 dark:text-jb-success border-emerald-200 dark:border-[#2B543A]'
+                    : 'bg-rose-50 dark:bg-[#351E20] text-rose-800 dark:text-jb-error border-rose-200 dark:border-[#52282C]'
                 }`}>
                   {actionStatus.msg}
                 </div>

@@ -9,46 +9,46 @@ interface AboutProps {
 
 export const About: React.FC<AboutProps> = ({ appVersion, adbVersion, platform }) => {
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-200 dark:border-slate-800 shadow-sm text-center">
+    <div className="max-w-4xl mx-auto space-y-4">
+      <div className="bg-white dark:bg-jb-panel rounded p-6 border border-slate-200 dark:border-jb-border shadow-xs text-center">
         {/* App Logo */}
-        <div className="w-20 h-20 rounded-3xl bg-gradient-to-tr from-blue-600 to-indigo-500 mx-auto flex items-center justify-center shadow-xl shadow-blue-500/20 mb-4 p-4">
+        <div className="w-16 h-16 rounded bg-jb-accent mx-auto flex items-center justify-center shadow-xs mb-3 p-3">
           <img src="/FP2.png" alt="FunnelPeek Next" className="w-full h-full object-contain" />
         </div>
 
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+        <h2 className="text-xl font-bold text-slate-900 dark:text-jb-text tracking-tight">
           FunnelPeek Next
         </h2>
-        <span className="inline-block mt-1 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-900">
+        <span className="inline-block mt-1 text-xs font-semibold px-2 py-0.5 rounded bg-blue-50 dark:bg-jb-hover text-jb-accent border border-blue-200 dark:border-jb-border">
           v{appVersion} (Modernized Edition)
         </span>
 
-        <p className="text-sm text-slate-600 dark:text-slate-400 max-w-lg mx-auto mt-3">
+        <p className="text-xs text-slate-600 dark:text-jb-textMuted max-w-lg mx-auto mt-2">
           A high-performance Android UI hierarchy viewer, multi-screen funnel sequencer, and automated test locator generator.
         </p>
 
         {/* Info Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-left mt-8 max-w-2xl mx-auto text-xs">
-          <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800">
-            <span className="text-slate-400 block mb-1">Architecture</span>
-            <span className="font-semibold text-slate-800 dark:text-slate-200">Electron 34 + Vite + React 18</span>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-left mt-6 max-w-2xl mx-auto text-xs">
+          <div className="p-3 rounded bg-slate-50 dark:bg-jb-elevated/40 border border-slate-200 dark:border-jb-border">
+            <span className="text-slate-400 dark:text-jb-textMuted block mb-0.5 text-[11px]">Architecture</span>
+            <span className="font-semibold text-slate-800 dark:text-jb-text">Electron 34 + Vite + React 18</span>
           </div>
 
-          <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800">
-            <span className="text-slate-400 block mb-1">Platform</span>
-            <span className="font-semibold text-slate-800 dark:text-slate-200 capitalize">{platform}</span>
+          <div className="p-3 rounded bg-slate-50 dark:bg-jb-elevated/40 border border-slate-200 dark:border-jb-border">
+            <span className="text-slate-400 dark:text-jb-textMuted block mb-0.5 text-[11px]">Platform</span>
+            <span className="font-semibold text-slate-800 dark:text-jb-text capitalize">{platform}</span>
           </div>
 
-          <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800">
-            <span className="text-slate-400 block mb-1">ADB Engine</span>
-            <span className="font-semibold text-slate-800 dark:text-slate-200 truncate block">
+          <div className="p-3 rounded bg-slate-50 dark:bg-jb-elevated/40 border border-slate-200 dark:border-jb-border">
+            <span className="text-slate-400 dark:text-jb-textMuted block mb-0.5 text-[11px]">ADB Engine</span>
+            <span className="font-semibold text-slate-800 dark:text-jb-text truncate block">
               {adbVersion ? adbVersion.replace('Android Debug Bridge version ', 'v') : 'Auto-detecting...'}
             </span>
           </div>
         </div>
 
         {/* Credits */}
-        <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-400 max-w-lg mx-auto space-y-2">
+        <div className="mt-6 pt-4 border-t border-slate-100 dark:border-jb-border text-xs text-slate-400 dark:text-jb-textMuted max-w-lg mx-auto space-y-1.5">
           <p>
             Original FunnelPeek created by <strong>Saeed Roshan</strong>.
           </p>
