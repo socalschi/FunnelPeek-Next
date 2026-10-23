@@ -34,7 +34,7 @@ export const Header: React.FC<HeaderProps> = ({
   onSaveZip
 }) => {
   return (
-    <header className="border-b border-slate-200 dark:border-jb-border bg-white dark:bg-jb-panel sticky top-0 z-30 transition-colors">
+    <header className="border-b border-slate-200 dark:border-jb-border bg-white dark:bg-jb-panel sticky top-0 z-30 transition-colors shrink-0">
       <div className="px-3.5 py-1.5 flex items-center justify-between gap-3">
         {/* Left: Menu Toggle + App Brand */}
         <div className="flex items-center space-x-2.5 shrink-0">
@@ -71,7 +71,7 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Right Action Bar (Device selector, Refresh, Inspect Screen, Add to Flow, Load Zip, Save Zip) */}
-        <div className="flex items-center gap-2 flex-wrap justify-end">
+        <div className="flex items-center gap-2 flex-nowrap shrink-0 overflow-x-auto">
           {/* Device Selector */}
           <div className="flex items-center gap-1">
             <Smartphone className="w-3.5 h-3.5 text-jb-accent shrink-0" />

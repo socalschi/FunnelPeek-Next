@@ -313,7 +313,7 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 dark:bg-jb-bg text-slate-900 dark:text-jb-text flex flex-col font-sans transition-colors">
+    <div className="h-screen w-screen overflow-hidden bg-slate-100 dark:bg-jb-bg text-slate-900 dark:text-jb-text flex flex-col font-sans transition-colors">
       <Header
         sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}
@@ -330,7 +330,7 @@ export function App() {
         onSaveZip={handleSaveZip}
       />
 
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden min-h-0 min-w-0 relative">
         <Sidebar
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
@@ -344,7 +344,7 @@ export function App() {
           setDarkMode={setDarkMode}
         />
 
-        <main className="flex-1 p-2.5 overflow-hidden w-full flex flex-col min-h-0">
+        <main className="flex-1 p-2 overflow-hidden flex flex-col min-h-0 min-w-0">
           {currentPage === 'funnelboard' && (
             <FunnelBoard
               selectedDevice={selectedDevice}

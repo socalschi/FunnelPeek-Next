@@ -110,7 +110,7 @@ export const FunnelBoard: React.FC<FunnelBoardProps> = ({
   }, [allElements, selectedElementId]);
 
   return (
-    <div className="h-full flex flex-col w-full min-h-0 space-y-2">
+    <div className="h-full flex flex-col w-full min-h-0 space-y-1.5 overflow-hidden">
       {/* Security alert if screen is black/secured */}
       {isSecuredScreen && (
         <div className="p-2 rounded bg-blue-50 dark:bg-jb-elevated border border-blue-200 dark:border-jb-border text-xs text-blue-900 dark:text-jb-text flex items-center gap-2 shrink-0">
@@ -138,12 +138,12 @@ export const FunnelBoard: React.FC<FunnelBoardProps> = ({
       {/* Main Split Area (Canvas on Left, Tree on Right) with Horizontal Resizer */}
       <div
         ref={containerRef}
-        className="flex-1 flex flex-col md:flex-row gap-0 min-h-0 w-full relative"
+        className="flex-1 flex flex-col md:flex-row gap-0 min-h-0 min-w-0 w-full relative overflow-hidden"
       >
         {/* Canvas Section */}
         <div
           style={{ width: `${splitRatio}%` }}
-          className={`h-full flex flex-col min-h-0 overflow-hidden pr-1 ${isDragging ? 'pointer-events-none' : ''}`}
+          className={`h-full flex flex-col min-h-0 min-w-0 overflow-hidden pr-1 ${isDragging ? 'pointer-events-none' : ''}`}
         >
           <CanvasImageRenderer
             base64Image={capturedImage}
@@ -180,7 +180,7 @@ export const FunnelBoard: React.FC<FunnelBoardProps> = ({
         {/* Hierarchy Tree Section */}
         <div
           style={{ width: `${100 - splitRatio}%` }}
-          className={`h-full flex flex-col min-h-0 overflow-hidden pl-1 ${isDragging ? 'pointer-events-none' : ''}`}
+          className={`h-full flex flex-col min-h-0 min-w-0 overflow-hidden pl-1 ${isDragging ? 'pointer-events-none' : ''}`}
         >
           <ElementTree
             rootElements={rootElements}

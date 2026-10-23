@@ -45,6 +45,7 @@ export const CanvasImageRenderer: React.FC<CanvasImageRendererProps> = ({
   useEffect(() => {
     if (!base64Image) {
       setImageLoaded(false);
+      imageRef.current = null;
       return;
     }
 
@@ -54,16 +55,27 @@ export const CanvasImageRenderer: React.FC<CanvasImageRendererProps> = ({
       imageRef.current = img;
       setImageDimensions({ width: img.naturalWidth, height: img.naturalHeight });
       setImageLoaded(true);
+
       // Fit to container initially
-      if (containerRef.current) {
+      if (containerRef.current && canvasRef.current) {
         const cw = containerRef.current.clientWidth;
         const ch = containerRef.current.clientHeight;
-        const scale = Math.min((cw - 40) / img.naturalWidth, (ch - 40) / img.naturalHeight, 1);
-        setZoom(scale > 0 ? scale : 1);
-        setPanOffset({
-          x: (cw - img.naturalWidth * scale) / 2,
-          y: (ch - img.naturalHeight * scale) / 2
-        });
+        if (cw > 0 && ch > 0) {
+          canvasRef.current.width = cw;
+          canvasRef.current.height = ch;
+
+          const pad = 32;
+          const availW = Math.max(cw - pad * 2, 40);
+          const availH = Math.max(ch - pad * 2, 40);
+          const scale = Math.min(availW / img.naturalWidth, availH / img.naturalHeight, 1);
+          const finalZoom = scale > 0 ? scale : 1;
+
+          setZoom(finalZoom);
+          setPanOffset({
+            x: Math.round((cw - img.naturalWidth * finalZoom) / 2),
+            y: Math.round((ch - img.naturalHeight * finalZoom) / 2)
+          });
+        }
       }
     };
   }, [base64Image]);
@@ -171,18 +183,36 @@ export const CanvasImageRenderer: React.FC<CanvasImageRendererProps> = ({
     draw();
   }, [draw]);
 
-  // Sync canvas size with container
+  // Sync canvas size with container via ResizeObserver
   useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
     const handleResize = () => {
       if (!containerRef.current || !canvasRef.current) return;
-      canvasRef.current.width = containerRef.current.clientWidth;
-      canvasRef.current.height = containerRef.current.clientHeight;
-      draw();
+      const cw = containerRef.current.clientWidth;
+      const ch = containerRef.current.clientHeight;
+      if (cw > 0 && ch > 0) {
+        if (canvasRef.current.width !== cw || canvasRef.current.height !== ch) {
+          canvasRef.current.width = cw;
+          canvasRef.current.height = ch;
+          draw();
+        }
+      }
     };
 
+    const observer = new ResizeObserver(() => {
+      handleResize();
+    });
+
+    observer.observe(container);
     handleResize();
+
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', handleResize);
+    };
   }, [draw]);
 
   // Coordinate conversion: Screen/Mouse -> Image coordinates
@@ -271,32 +301,53 @@ export const CanvasImageRenderer: React.FC<CanvasImageRendererProps> = ({
   };
 
   const fitToScreen = () => {
-    if (!containerRef.current || !imageDimensions.width) return;
+    if (!containerRef.current || !canvasRef.current || !imageRef.current) return;
+    const img = imageRef.current;
+    if (!img.naturalWidth || !img.naturalHeight) return;
+
     const cw = containerRef.current.clientWidth;
     const ch = containerRef.current.clientHeight;
-    const scale = Math.min((cw - 40) / imageDimensions.width, (ch - 40) / imageDimensions.height, 1);
-    setZoom(scale);
+    if (cw <= 0 || ch <= 0) return;
+
+    canvasRef.current.width = cw;
+    canvasRef.current.height = ch;
+
+    const pad = 32;
+    const availW = Math.max(cw - pad * 2, 40);
+    const availH = Math.max(ch - pad * 2, 40);
+    const scale = Math.min(availW / img.naturalWidth, availH / img.naturalHeight, 1);
+    const finalZoom = scale > 0 ? scale : 1;
+
+    setZoom(finalZoom);
     setPanOffset({
-      x: (cw - imageDimensions.width * scale) / 2,
-      y: (ch - imageDimensions.height * scale) / 2
+      x: Math.round((cw - img.naturalWidth * finalZoom) / 2),
+      y: Math.round((ch - img.naturalHeight * finalZoom) / 2)
     });
   };
 
   const resetZoom = () => {
-    if (!containerRef.current || !imageDimensions.width) return;
+    if (!containerRef.current || !canvasRef.current || !imageRef.current) return;
+    const img = imageRef.current;
+    if (!img.naturalWidth || !img.naturalHeight) return;
+
     const cw = containerRef.current.clientWidth;
     const ch = containerRef.current.clientHeight;
+    if (cw <= 0 || ch <= 0) return;
+
+    canvasRef.current.width = cw;
+    canvasRef.current.height = ch;
+
     setZoom(1);
     setPanOffset({
-      x: (cw - imageDimensions.width) / 2,
-      y: (ch - imageDimensions.height) / 2
+      x: Math.round((cw - img.naturalWidth) / 2),
+      y: Math.round((ch - img.naturalHeight) / 2)
     });
   };
 
   return (
-    <div className="relative flex-1 h-full min-h-[480px] bg-slate-100 dark:bg-jb-bg rounded overflow-hidden flex flex-col border border-slate-200 dark:border-jb-border shadow-xs transition-colors">
+    <div className="relative flex-1 h-full min-h-0 min-w-0 bg-slate-100 dark:bg-jb-bg rounded overflow-hidden flex flex-col border border-slate-200 dark:border-jb-border shadow-xs transition-colors">
       {/* Floating Canvas Controls */}
-      <div className="absolute top-2.5 left-2.5 z-20 flex items-center gap-1 p-1 bg-white/95 dark:bg-jb-panel/95 backdrop-blur-md border border-slate-200 dark:border-jb-border rounded text-slate-700 dark:text-jb-text shadow-sm transition-colors">
+      <div className="absolute top-2.5 left-2.5 z-20 flex items-center gap-1 p-1 bg-white/95 dark:bg-jb-panel/95 backdrop-blur-md border border-slate-200 dark:border-jb-border rounded text-slate-700 dark:text-jb-text shadow-sm transition-colors select-none">
         <button
           onClick={() => setZoom(z => Math.min(z * 1.25, 10))}
           className="p-1 rounded hover:bg-slate-100 dark:hover:bg-jb-hover transition-colors"
@@ -367,13 +418,15 @@ export const CanvasImageRenderer: React.FC<CanvasImageRendererProps> = ({
         }}
         onContextMenu={(e) => e.preventDefault()}
       >
-        {!base64Image ? (
-          <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 dark:text-jb-textMuted p-6 text-center">
+        <canvas ref={canvasRef} className="w-full h-full block" />
+
+        {!base64Image && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 dark:text-jb-textMuted p-6 text-center pointer-events-none">
             <p className="text-sm font-medium text-slate-600 dark:text-jb-text">Nenhuma tela inspecionada.</p>
-            <p className="text-xs text-slate-400 dark:text-jb-textMuted mt-1">Selecione o aparelho conectado e clique em "Inspect Screen" para analisar a UI.</p>
+            <p className="text-xs text-slate-400 dark:text-jb-textMuted mt-1">
+              Selecione o aparelho conectado e clique em "Inspect Screen" para analisar a UI.
+            </p>
           </div>
-        ) : (
-          <canvas ref={canvasRef} className="w-full h-full block" />
         )}
       </div>
     </div>
