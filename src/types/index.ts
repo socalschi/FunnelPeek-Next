@@ -85,6 +85,9 @@ export interface ElectronAPI {
   adbInstallPackage: (deviceId: string) => Promise<{ canceled?: boolean; success?: boolean; apkPath?: string }>;
   saveFunnelZip: (data: any) => Promise<{ canceled?: boolean; success?: boolean; filePath?: string }>;
   loadFunnelZip: () => Promise<{ canceled?: boolean; success?: boolean; data?: any; filePath?: string }>;
+  saveFlowState: (steps: any[]) => Promise<{ success: boolean; error?: string }>;
+  loadFlowState: () => Promise<{ success: boolean; steps: any[]; error?: string }>;
+  clearFlowState: () => Promise<{ success: boolean; error?: string }>;
   minimizeWindow?: () => Promise<void>;
   maximizeWindow?: () => Promise<void>;
   closeWindow?: () => Promise<void>;

@@ -232,6 +232,50 @@ app.whenReady().then(async () => {
     return { success: true, data, filePath: result.filePaths[0] };
   });
 
+  // Funnel Flow Persistent Storage across app restarts
+  const flowStoragePath = path.join(app.getPath('userData'), 'funnel-flow-storage.json');
+
+  ipcMain.handle('save-flow-state', async (_event, steps: any[]) => {
+    try {
+      const dir = path.dirname(flowStoragePath);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      const data = JSON.stringify(steps || [], null, 2);
+      await fs.promises.writeFile(flowStoragePath, data, 'utf-8');
+      return { success: true };
+    } catch (err: any) {
+      console.error('Failed to save funnel flow state to disk:', err);
+      return { success: false, error: err.message };
+    }
+  });
+
+  ipcMain.handle('load-flow-state', async () => {
+    try {
+      if (!fs.existsSync(flowStoragePath)) {
+        return { success: true, steps: [] };
+      }
+      const data = await fs.promises.readFile(flowStoragePath, 'utf-8');
+      const steps = JSON.parse(data);
+      return { success: true, steps: Array.isArray(steps) ? steps : [] };
+    } catch (err: any) {
+      console.error('Failed to load funnel flow state from disk:', err);
+      return { success: false, steps: [], error: err.message };
+    }
+  });
+
+  ipcMain.handle('clear-flow-state', async () => {
+    try {
+      if (fs.existsSync(flowStoragePath)) {
+        await fs.promises.unlink(flowStoragePath);
+      }
+      return { success: true };
+    } catch (err: any) {
+      console.error('Failed to clear funnel flow state from disk:', err);
+      return { success: false, error: err.message };
+    }
+  });
+
   createWindow();
 
   app.on('activate', () => {

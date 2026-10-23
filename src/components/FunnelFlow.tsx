@@ -55,8 +55,13 @@ export const FunnelFlow: React.FC<FunnelFlowProps> = ({
         <div className="flex items-center gap-2">
           {steps.length > 0 && (
             <button
-              onClick={() => {
-                if (confirm('Tem certeza que deseja limpar todo o fluxo de telas?')) setSteps([]);
+              onClick={async () => {
+                if (confirm('Tem certeza que deseja limpar todo o fluxo de telas?')) {
+                  setSteps([]);
+                  if (window.electronAPI?.clearFlowState) {
+                    await window.electronAPI.clearFlowState();
+                  }
+                }
               }}
               className="px-3 py-1.5 rounded border border-slate-200 dark:border-jb-border hover:bg-rose-50 dark:hover:bg-[#351E20] text-slate-600 dark:text-jb-textMuted hover:text-rose-600 dark:hover:text-jb-error text-xs font-medium transition-colors"
             >

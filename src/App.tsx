@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Header } from './components/Header.tsx';
 import { Sidebar } from './components/Sidebar.tsx';
 import { FunnelBoard } from './components/FunnelBoard.tsx';
@@ -31,6 +31,76 @@ export function App() {
   // Funnel Flow sequence state
   const [funnelSteps, setFunnelSteps] = useState<FunnelStep[]>([]);
   const [isCapturingStep, setIsCapturingStep] = useState(false);
+  const isFlowLoadedRef = useRef<boolean>(false);
+
+  // 1. Initial Load of Persisted Funnel Flow State from Disk
+  useEffect(() => {
+    const loadSavedFlow = async () => {
+      if (!window.electronAPI?.loadFlowState) {
+        isFlowLoadedRef.current = true;
+        return;
+      }
+      try {
+        const res = await window.electronAPI.loadFlowState();
+        if (res.success && Array.isArray(res.steps) && res.steps.length > 0) {
+          const hydratedSteps: FunnelStep[] = res.steps.map((s: any) => {
+            const { rootElements, allElements } = parseHierarchyXml(s.xml || '');
+            return {
+              id: s.id,
+              title: s.title || s.packageName,
+              packageName: s.packageName,
+              timestamp: s.timestamp,
+              formattedDate: s.formattedDate,
+              screenshot: s.screenshot,
+              xml: s.xml,
+              notes: s.notes || '',
+              allElements,
+              rootElements,
+              selectedElement: s.selectedElementId ? (allElements.find(e => e.id === s.selectedElementId) || null) : null
+            };
+          });
+          setFunnelSteps(hydratedSteps);
+
+          // If no active board screen is set yet, restore the latest flow screen so the user doesn't face an empty board
+          const latest = hydratedSteps[hydratedSteps.length - 1];
+          if (latest) {
+            setCapturedImage(latest.screenshot);
+            setUiHierarchyXml(latest.xml);
+            setSelectedElementId(latest.selectedElement?.id || null);
+          }
+        }
+      } catch (err) {
+        console.warn('Failed to load persisted funnel flow:', err);
+      } finally {
+        isFlowLoadedRef.current = true;
+      }
+    };
+
+    loadSavedFlow();
+  }, []);
+
+  // 2. Auto-Save Funnel Flow State to Disk across changes / app close
+  useEffect(() => {
+    if (!isFlowLoadedRef.current) return;
+    if (!window.electronAPI?.saveFlowState) return;
+
+    // Serialize cleanly without circular parent references
+    const persistable = funnelSteps.map(s => ({
+      id: s.id,
+      title: s.title,
+      packageName: s.packageName,
+      timestamp: s.timestamp,
+      formattedDate: s.formattedDate,
+      screenshot: s.screenshot,
+      xml: s.xml,
+      notes: s.notes || '',
+      selectedElementId: s.selectedElement?.id || null
+    }));
+
+    window.electronAPI.saveFlowState(persistable).catch(err => {
+      console.error('Failed to auto-save flow state to disk:', err);
+    });
+  }, [funnelSteps]);
 
   // Sync Dark Mode class with HTML root
   useEffect(() => {

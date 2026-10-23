@@ -29,6 +29,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
   saveFunnelZip: (data: any) => ipcRenderer.invoke('save-funnel-zip', data),
   loadFunnelZip: () => ipcRenderer.invoke('load-funnel-zip'),
 
+  // Funnel Flow Persistence across app restarts
+  saveFlowState: (steps: any[]) => ipcRenderer.invoke('save-flow-state', steps),
+  loadFlowState: () => ipcRenderer.invoke('load-flow-state'),
+  clearFlowState: () => ipcRenderer.invoke('clear-flow-state'),
+
   // Window Controls
   minimizeWindow: () => ipcRenderer.invoke('minimize-window'),
   maximizeWindow: () => ipcRenderer.invoke('maximize-window'),
