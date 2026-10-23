@@ -1,10 +1,27 @@
-import React, { useState } from 'react';
-import { X, Touchpad, Copy, Check, Terminal, Send, ArrowLeft, Home, CornerDownLeft, Delete, Menu, Layers } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  X,
+  Touchpad,
+  Copy,
+  Check,
+  Terminal,
+  Send,
+  ArrowLeft,
+  Home,
+  CornerDownLeft,
+  Delete,
+  Menu,
+  Layers,
+  ChevronLeft,
+  ChevronRight
+} from 'lucide-react';
 import { UIElement } from '../types/index.ts';
 import { generateSelectors } from '../utils/xmlParser.ts';
 
 interface ElementDetailsModalProps {
   element: UIElement | null;
+  elements?: UIElement[];
+  onSelectElement?: (elementId: string) => void;
   deviceId: string | null;
   onClose: () => void;
   onRefreshAfterAction?: () => void;
@@ -12,6 +29,8 @@ interface ElementDetailsModalProps {
 
 export const ElementDetailsModal: React.FC<ElementDetailsModalProps> = ({
   element,
+  elements,
+  onSelectElement,
   deviceId,
   onClose,
   onRefreshAfterAction
@@ -21,6 +40,59 @@ export const ElementDetailsModal: React.FC<ElementDetailsModalProps> = ({
   const [textInput, setTextInput] = useState('');
   const [isExecuting, setIsExecuting] = useState(false);
   const [actionStatus, setActionStatus] = useState<{ success: boolean; msg: string } | null>(null);
+
+  const elementsList = elements && elements.length > 0 ? elements : (element ? [element] : []);
+  const currentIndex = element ? elementsList.findIndex(e => e.id === element.id) : -1;
+  const hasPrev = currentIndex > 0;
+  const hasNext = currentIndex >= 0 && currentIndex < elementsList.length - 1;
+
+  const goToPrev = useCallback(() => {
+    if (currentIndex > 0 && onSelectElement) {
+      const prevEl = elementsList[currentIndex - 1];
+      onSelectElement(prevEl.id);
+    }
+  }, [currentIndex, onSelectElement, elementsList]);
+
+  const goToNext = useCallback(() => {
+    if (currentIndex >= 0 && currentIndex < elementsList.length - 1 && onSelectElement) {
+      const nextEl = elementsList[currentIndex + 1];
+      onSelectElement(nextEl.id);
+    }
+  }, [currentIndex, onSelectElement, elementsList]);
+
+  // Reset transient interaction state when navigated element changes
+  useEffect(() => {
+    setActionStatus(null);
+    setTextInput('');
+  }, [element?.id]);
+
+  // Keyboard navigation: ArrowLeft, ArrowRight, Escape
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onClose();
+        return;
+      }
+
+      // If user is currently typing in an input or textarea, don't trigger left/right element switch
+      const activeTag = (document.activeElement as HTMLElement)?.tagName?.toLowerCase();
+      if (activeTag === 'input' || activeTag === 'textarea') {
+        return;
+      }
+
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        goToPrev();
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        goToNext();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [goToPrev, goToNext, onClose]);
 
   if (!element) return null;
 
@@ -90,28 +162,63 @@ export const ElementDetailsModal: React.FC<ElementDetailsModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-      <div className="w-full max-w-3xl max-h-[85vh] bg-white dark:bg-jb-elevated rounded-lg shadow-xl border border-slate-200 dark:border-jb-border flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-xs select-none"
+    >
+      {/* Seta Esquerda (Elemento Anterior) */}
+      <button
+        onClick={goToPrev}
+        disabled={!hasPrev}
+        className={`flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 mr-2 sm:mr-3 rounded-full bg-white/95 dark:bg-jb-panel/95 hover:bg-white dark:hover:bg-jb-elevated text-slate-700 dark:text-jb-text border border-slate-200 dark:border-jb-border shadow-2xl transition-all shrink-0 ${
+          hasPrev
+            ? 'opacity-90 hover:opacity-100 hover:scale-110 active:scale-95 cursor-pointer text-jb-accent hover:border-jb-accent ring-1 ring-jb-accent/30'
+            : 'opacity-20 cursor-not-allowed'
+        }`}
+        title="Elemento Anterior (Seta Esquerda)"
+      >
+        <ChevronLeft className="w-6 h-6 stroke-[2.5]" />
+      </button>
+
+      {/* Janela Principal do Elemento (Modal Box) */}
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-3xl max-h-[85vh] bg-white dark:bg-jb-elevated rounded-lg shadow-2xl border border-slate-200 dark:border-jb-border flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150 relative select-text"
+      >
         {/* Header */}
-        <div className="p-3.5 border-b border-slate-200 dark:border-jb-border flex items-center justify-between bg-slate-50 dark:bg-jb-panel">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-mono text-xs px-2 py-0.5 rounded bg-blue-100 dark:bg-jb-hover text-blue-700 dark:text-jb-accent font-semibold border border-blue-200 dark:border-jb-border">
-                &lt;{element.tagName}&gt;
-              </span>
-              <h2 className="text-sm font-bold text-slate-900 dark:text-jb-text">
+        <div className="p-3.5 border-b border-slate-200 dark:border-jb-border flex items-center justify-between bg-slate-50 dark:bg-jb-panel shrink-0">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="font-mono text-xs px-2 py-0.5 rounded bg-blue-100 dark:bg-jb-hover text-blue-700 dark:text-jb-accent font-semibold border border-blue-200 dark:border-jb-border shrink-0">
+              &lt;{element.tagName}&gt;
+            </span>
+            <div className="min-w-0">
+              <h2 className="text-sm font-bold text-slate-900 dark:text-jb-text truncate">
                 {element.resourceId?.split('/').pop() || element.className.split('.').pop() || 'Element Details'}
               </h2>
+              <p className="text-[11px] text-slate-500 dark:text-jb-textMuted font-mono truncate">{element.bounds}</p>
             </div>
-            <p className="text-xs text-slate-500 dark:text-jb-textMuted font-mono mt-0.5">{element.bounds}</p>
           </div>
 
-          <button
-            onClick={onClose}
-            className="p-1 rounded hover:bg-slate-200 dark:hover:bg-jb-hover text-slate-500 dark:text-jb-text transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Position indicator */}
+            {currentIndex >= 0 && elementsList.length > 0 && (
+              <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-100 dark:bg-jb-bg text-slate-600 dark:text-jb-textMuted border border-slate-200 dark:border-jb-border">
+                {currentIndex + 1} / {elementsList.length}
+              </span>
+            )}
+
+            <button
+              onClick={onClose}
+              className="p-1 rounded hover:bg-slate-200 dark:hover:bg-jb-hover text-slate-500 dark:text-jb-text hover:text-slate-800 dark:hover:text-white transition-colors"
+              title="Fechar (Esc)"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         {/* Tabs Bar */}
@@ -355,6 +462,20 @@ export const ElementDetailsModal: React.FC<ElementDetailsModalProps> = ({
           )}
         </div>
       </div>
+
+      {/* Seta Direita (Próximo Elemento) */}
+      <button
+        onClick={goToNext}
+        disabled={!hasNext}
+        className={`flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 ml-2 sm:ml-3 rounded-full bg-white/95 dark:bg-jb-panel/95 hover:bg-white dark:hover:bg-jb-elevated text-slate-700 dark:text-jb-text border border-slate-200 dark:border-jb-border shadow-2xl transition-all shrink-0 ${
+          hasNext
+            ? 'opacity-90 hover:opacity-100 hover:scale-110 active:scale-95 cursor-pointer text-jb-accent hover:border-jb-accent ring-1 ring-jb-accent/30'
+            : 'opacity-20 cursor-not-allowed'
+        }`}
+        title="Próximo Elemento (Seta Direita)"
+      >
+        <ChevronRight className="w-6 h-6 stroke-[2.5]" />
+      </button>
     </div>
   );
 };

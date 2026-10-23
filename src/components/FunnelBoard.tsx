@@ -206,6 +206,8 @@ export const FunnelBoard: React.FC<FunnelBoardProps> = ({
       {isDetailsModalOpen && selectedElement && (
         <ElementDetailsModal
           element={selectedElement}
+          elements={searchQuery.trim() && filteredElements.length > 0 ? filteredElements : allElements}
+          onSelectElement={setSelectedElementId}
           deviceId={selectedDevice}
           onClose={() => setIsDetailsModalOpen(false)}
           onRefreshAfterAction={onInspect}
