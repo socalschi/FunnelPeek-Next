@@ -1,5 +1,6 @@
 import React from 'react';
 import { LayoutDashboard, GitFork, Package, Info, ChevronRight, X, Terminal, Sun, Moon } from 'lucide-react';
+import { APP_LOGO } from '../assets/logo.ts';
 
 interface SidebarProps {
   currentPage: string;
@@ -75,7 +76,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="p-3.5 flex items-center justify-between border-b border-slate-100 dark:border-jb-border">
             <div className="flex items-center gap-2">
               <div className="w-5 h-5 rounded bg-jb-accent/15 border border-jb-accent/30 flex items-center justify-center overflow-hidden">
-                <img src="/FP2.png" alt="FP" className="w-4 h-4 object-contain" onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }} />
+                <img src={APP_LOGO} alt="FP" className="w-4 h-4 object-contain" onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }} />
               </div>
               <span className="font-semibold text-xs text-slate-800 dark:text-jb-text">Navegação</span>
             </div>

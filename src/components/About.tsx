@@ -1,5 +1,6 @@
 import React from 'react';
 import { Smartphone, Cpu, ShieldCheck, Heart, ExternalLink, Code2 } from 'lucide-react';
+import { APP_LOGO } from '../assets/logo.ts';
 
 interface AboutProps {
   appVersion: string;
@@ -13,7 +14,11 @@ export const About: React.FC<AboutProps> = ({ appVersion, adbVersion, platform }
       <div className="bg-white dark:bg-jb-panel rounded p-6 border border-slate-200 dark:border-jb-border shadow-xs text-center">
         {/* App Logo posicionado diretamente em cima do nome */}
         <div className="mx-auto flex items-center justify-center mb-3">
-          <img src="/FP2.png" alt="FunnelPeek Next" className="w-16 h-16 object-contain drop-shadow-sm" />
+          <img
+            src={APP_LOGO}
+            alt="FunnelPeek Next"
+            className="w-16 h-16 object-contain drop-shadow-sm select-none"
+          />
         </div>
 
         <h2 className="text-xl font-bold text-slate-900 dark:text-jb-text tracking-tight">
@@ -49,17 +54,14 @@ export const About: React.FC<AboutProps> = ({ appVersion, adbVersion, platform }
 
         {/* Credits & Authorship */}
         <div className="mt-6 pt-5 border-t border-slate-100 dark:border-jb-border text-xs text-slate-400 dark:text-jb-textMuted max-w-xl mx-auto space-y-2.5">
-          {/* Maestro Highlight Box */}
-          <div className="p-3 rounded-lg bg-blue-50/60 dark:bg-jb-elevated border border-blue-200/80 dark:border-jb-border text-slate-800 dark:text-jb-text flex items-center justify-center gap-2.5 shadow-xs">
-            <span className="text-base select-none">🎼</span>
-            <div className="text-center">
-              <span className="text-[11px] text-slate-500 dark:text-jb-textMuted block uppercase tracking-wider font-semibold">
-                Maestro do Projeto
-              </span>
-              <span className="font-bold text-sm text-slate-900 dark:text-white">
-                Guilherme Socalschi
-              </span>
-            </div>
+          {/* Caixa de autoria sóbria e profissional */}
+          <div className="p-3 rounded bg-slate-50 dark:bg-jb-elevated/60 border border-slate-200 dark:border-jb-border text-center">
+            <span className="text-[11px] text-slate-400 dark:text-jb-textMuted block uppercase tracking-wider">
+              Liderança & Desenvolvimento do Projeto
+            </span>
+            <span className="font-semibold text-sm text-slate-900 dark:text-white mt-0.5 block">
+              Guilherme Socalschi
+            </span>
           </div>
 
           <div className="pt-1 space-y-1">
