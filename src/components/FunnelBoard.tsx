@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Camera, RefreshCw, Smartphone, Download, Upload, Plus, AlertCircle, ShieldAlert } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { ScanEye, RefreshCw, Smartphone, Download, Upload, Plus, AlertCircle, ShieldAlert, Check } from 'lucide-react';
 import { Device, UIElement, FunnelStep } from '../types/index.ts';
-import { parseHierarchyXml, filterElements, searchByXPath } from '../utils/xmlParser.ts';
+import { parseHierarchyXml, filterElements, searchByXPath, extractActivePackage, formatBrazilianDateTime } from '../utils/xmlParser.ts';
 import { CanvasImageRenderer } from './CanvasImageRenderer.tsx';
 import { ElementTree } from './ElementTree.tsx';
 import { ElementDetailsModal } from './ElementDetailsModal.tsx';
@@ -11,7 +11,15 @@ interface FunnelBoardProps {
   selectedDevice: string | null;
   setSelectedDevice: (id: string) => void;
   onRefreshDevices: () => Promise<void>;
-  onAddToFunnel?: (step: FunnelStep) => void;
+  onAddToFlow?: (step: FunnelStep) => void;
+  capturedImage: string | null;
+  setCapturedImage: (img: string | null) => void;
+  uiHierarchyXml: string;
+  setUiHierarchyXml: (xml: string) => void;
+  selectedElementId: string | null;
+  setSelectedElementId: (id: string | null) => void;
+  highlightedElementId: string | null;
+  setHighlightedElementId: (id: string | null) => void;
 }
 
 export const FunnelBoard: React.FC<FunnelBoardProps> = ({
@@ -19,17 +27,22 @@ export const FunnelBoard: React.FC<FunnelBoardProps> = ({
   selectedDevice,
   setSelectedDevice,
   onRefreshDevices,
-  onAddToFunnel
+  onAddToFlow,
+  capturedImage,
+  setCapturedImage,
+  uiHierarchyXml,
+  setUiHierarchyXml,
+  selectedElementId,
+  setSelectedElementId,
+  highlightedElementId,
+  setHighlightedElementId
 }) => {
-  const [capturedImage, setCapturedImage] = useState<string | null>(null);
-  const [uiHierarchyXml, setUiHierarchyXml] = useState<string>('');
   const [isCapturing, setIsCapturing] = useState(false);
   const [isSecuredScreen, setIsSecuredScreen] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [justAddedToFlow, setJustAddedToFlow] = useState(false);
 
-  // Selection & Highlight state
-  const [highlightedElementId, setHighlightedElementId] = useState<string | null>(null);
-  const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
+  // Modal state
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
   // Search state
@@ -59,8 +72,8 @@ export const FunnelBoard: React.FC<FunnelBoardProps> = ({
     return allElements.find(el => el.id === selectedElementId) || null;
   }, [allElements, selectedElementId]);
 
-  // Perform screen capture & hierarchy dump
-  const handleCapture = async () => {
+  // Perform screen inspection & hierarchy dump
+  const handleInspect = async () => {
     if (!selectedDevice || !window.electronAPI) return;
     setIsCapturing(true);
     setErrorMessage(null);
@@ -79,11 +92,11 @@ export const FunnelBoard: React.FC<FunnelBoardProps> = ({
       setSelectedElementId(null);
       setHighlightedElementId(null);
     } catch (err: any) {
-      console.error('Capture failed:', err);
-      if (err.message && err.message.includes('blank') || err.message.includes('secured')) {
+      console.error('Inspection failed:', err);
+      if (err.message && (err.message.includes('blank') || err.message.includes('secured'))) {
         setIsSecuredScreen(true);
       }
-      setErrorMessage(err.message || 'Capture failed');
+      setErrorMessage(err.message || 'Falha ao inspecionar tela do dispositivo.');
     } finally {
       setIsCapturing(false);
     }
@@ -99,10 +112,10 @@ export const FunnelBoard: React.FC<FunnelBoardProps> = ({
         deviceId: selectedDevice || 'device'
       });
       if (res.success) {
-        alert('Capture ZIP saved successfully!');
+        alert('Arquivo ZIP da captura salvo com sucesso!');
       }
     } catch (err: any) {
-      alert(`Save failed: ${err.message}`);
+      alert(`Falha ao salvar: ${err.message}`);
     }
   };
 
@@ -118,29 +131,35 @@ export const FunnelBoard: React.FC<FunnelBoardProps> = ({
         setHighlightedElementId(null);
       }
     } catch (err: any) {
-      alert(`Load failed: ${err.message}`);
+      alert(`Falha ao carregar ZIP: ${err.message}`);
     }
   };
 
-  // Add current screen to Funnel Sequence
-  const handleAddCurrentToFunnel = () => {
-    if (!capturedImage || !uiHierarchyXml || !onAddToFunnel) return;
+  // Add current screen to Flow Sequence with full structure
+  const handleAddCurrentToFlow = () => {
+    if (!capturedImage || !uiHierarchyXml || !onAddToFlow) return;
+    const pkg = extractActivePackage(allElements);
     const step: FunnelStep = {
       id: `step_${Date.now()}`,
-      title: `Screen ${new Date().toLocaleTimeString()}`,
+      title: pkg,
+      packageName: pkg,
       timestamp: new Date().toISOString(),
+      formattedDate: formatBrazilianDateTime(Date.now()),
       screenshot: capturedImage,
       xml: uiHierarchyXml,
+      allElements: allElements,
+      rootElements: rootElements,
       selectedElement: selectedElement
     };
-    onAddToFunnel(step);
-    alert('Screen added to Funnel Flow sequence!');
+    onAddToFlow(step);
+    setJustAddedToFlow(true);
+    setTimeout(() => setJustAddedToFlow(false), 2000);
   };
 
   return (
-    <div className="space-y-3 h-[calc(100vh-100px)] flex flex-col">
+    <div className="space-y-3 h-[calc(100vh-100px)] flex flex-col w-full">
       {/* Top Action Bar */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl p-3 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-wrap items-center justify-between gap-3 shrink-0">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl p-3 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-wrap items-center justify-between gap-3 shrink-0 transition-colors">
         {/* Device selector */}
         <div className="flex items-center gap-2">
           <Smartphone className="w-4 h-4 text-blue-500" />
@@ -150,7 +169,7 @@ export const FunnelBoard: React.FC<FunnelBoardProps> = ({
             className="text-xs font-semibold py-1.5 px-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             {devices.length === 0 ? (
-              <option value="">No Devices Connected</option>
+              <option value="">Nenhum Aparelho Conectado</option>
             ) : (
               devices.map(d => (
                 <option key={d.id} value={d.id}>
@@ -163,31 +182,36 @@ export const FunnelBoard: React.FC<FunnelBoardProps> = ({
           <button
             onClick={onRefreshDevices}
             className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors"
-            title="Refresh device list"
+            title="Atualizar lista de aparelhos"
           >
             <RefreshCw className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Capture & Action Buttons */}
+        {/* Action Buttons: Inspect Screen & + Add to Flow */}
         <div className="flex items-center gap-2">
           <button
-            onClick={handleCapture}
+            onClick={handleInspect}
             disabled={isCapturing || !selectedDevice}
-            className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white font-semibold text-xs flex items-center gap-2 shadow-md shadow-blue-500/20 transition-all"
+            className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 dark:disabled:bg-slate-800 disabled:text-slate-500 text-white font-semibold text-xs flex items-center gap-2 shadow-md shadow-blue-500/20 transition-all"
+            title="Inspecionar e analisar toda a estrutura da tela atual"
           >
-            <Camera className={`w-4 h-4 ${isCapturing ? 'animate-spin' : ''}`} />
-            {isCapturing ? 'Capturing...' : 'Capture Screen'}
+            <ScanEye className={`w-4 h-4 ${isCapturing ? 'animate-spin' : ''}`} />
+            {isCapturing ? 'Analisando Tela...' : 'Inspect Screen'}
           </button>
 
-          {capturedImage && onAddToFunnel && (
+          {capturedImage && onAddToFlow && (
             <button
-              onClick={handleAddCurrentToFunnel}
-              className="px-3.5 py-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 font-medium text-xs flex items-center gap-1.5 border border-indigo-200 dark:border-indigo-800 transition-colors"
-              title="Add current screen to multi-step funnel"
+              onClick={handleAddCurrentToFlow}
+              className={`px-3.5 py-2 rounded-xl font-semibold text-xs flex items-center gap-1.5 border transition-all shadow-sm ${
+                justAddedToFlow
+                  ? 'bg-emerald-600 text-white border-emerald-600'
+                  : 'bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800'
+              }`}
+              title="Salvar estrutura completa no Funnel Flow para análise posterior"
             >
-              <Plus className="w-3.5 h-3.5" />
-              Add to Funnel
+              {justAddedToFlow ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
+              {justAddedToFlow ? 'Salvo no Flow!' : '+ Add to Flow'}
             </button>
           )}
 
@@ -197,7 +221,7 @@ export const FunnelBoard: React.FC<FunnelBoardProps> = ({
             onClick={handleSaveZip}
             disabled={!capturedImage}
             className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 disabled:opacity-40 transition-colors"
-            title="Save capture as .zip"
+            title="Salvar inspeção como pacote .zip"
           >
             <Download className="w-4 h-4" />
           </button>
@@ -205,7 +229,7 @@ export const FunnelBoard: React.FC<FunnelBoardProps> = ({
           <button
             onClick={handleLoadZip}
             className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors"
-            title="Load capture from .zip"
+            title="Carregar pacote .zip existente"
           >
             <Upload className="w-4 h-4" />
           </button>
@@ -214,15 +238,15 @@ export const FunnelBoard: React.FC<FunnelBoardProps> = ({
 
       {/* Security alert if screen is black/secured */}
       {isSecuredScreen && (
-        <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-900 text-xs text-amber-800 dark:text-amber-300 flex items-center gap-2">
+        <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-900 text-xs text-amber-800 dark:text-amber-300 flex items-center gap-2 shrink-0">
           <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0" />
-          <span>Screen appears black/secured (app likely uses FLAG_SECURE). XML hierarchy is still inspected!</span>
+          <span>Tela com proteção (FLAG_SECURE ou bloqueada). A árvore hierárquica XML ainda foi inspecionada!</span>
         </div>
       )}
 
       {/* Error message banner */}
       {errorMessage && (
-        <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900 text-xs text-rose-800 dark:text-rose-200 flex items-center justify-between gap-2 shadow-sm animate-in fade-in">
+        <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900 text-xs text-rose-800 dark:text-rose-200 flex items-center justify-between gap-2 shadow-sm animate-in fade-in shrink-0">
           <div className="flex items-center gap-2">
             <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
             <span className="font-medium">{errorMessage}</span>
@@ -289,7 +313,7 @@ export const FunnelBoard: React.FC<FunnelBoardProps> = ({
           element={selectedElement}
           deviceId={selectedDevice}
           onClose={() => setIsDetailsModalOpen(false)}
-          onRefreshAfterAction={handleCapture}
+          onRefreshAfterAction={handleInspect}
         />
       )}
     </div>

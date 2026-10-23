@@ -7,6 +7,7 @@ import { ManagePackages } from './components/ManagePackages.tsx';
 import { About } from './components/About.tsx';
 import { AdbConfigModal } from './components/AdbConfigModal.tsx';
 import { Device, DetectedAdb, FunnelStep } from './types/index.ts';
+import { parseHierarchyXml, extractActivePackage, formatBrazilianDateTime } from './utils/xmlParser.ts';
 
 export function App() {
   const [currentPage, setCurrentPage] = useState<string>('funnelboard');
@@ -20,6 +21,12 @@ export function App() {
   const [isAdbModalOpen, setIsAdbModalOpen] = useState(false);
   const [devices, setDevices] = useState<Device[]>([]);
   const [selectedDevice, setSelectedDevice] = useState<string | null>(null);
+
+  // Persistent inspection state (retained across tab switching!)
+  const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [uiHierarchyXml, setUiHierarchyXml] = useState<string>('');
+  const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
+  const [highlightedElementId, setHighlightedElementId] = useState<string | null>(null);
 
   // Funnel Flow sequence state
   const [funnelSteps, setFunnelSteps] = useState<FunnelStep[]>([]);
@@ -101,28 +108,49 @@ export function App() {
     }
   };
 
-  // Capture step for Funnel Flow
+  // Inspect & Add to Funnel Flow directly
   const handleCaptureFunnelStep = async () => {
     if (!selectedDevice || !window.electronAPI) return;
     setIsCapturingStep(true);
     try {
       const screenshot = await window.electronAPI.adbPullScreenshot(selectedDevice);
       const xml = await window.electronAPI.adbDumpUi(selectedDevice);
+      const { allElements, rootElements } = parseHierarchyXml(xml);
+      const pkg = extractActivePackage(allElements);
 
       const step: FunnelStep = {
         id: `step_${Date.now()}`,
-        title: `Step ${funnelSteps.length + 1} (${new Date().toLocaleTimeString()})`,
+        title: pkg,
+        packageName: pkg,
         timestamp: new Date().toISOString(),
+        formattedDate: formatBrazilianDateTime(Date.now()),
         screenshot,
-        xml
+        xml,
+        allElements,
+        rootElements
       };
 
       setFunnelSteps(prev => [...prev, step]);
+
+      // Also keep current inspection updated
+      setCapturedImage(screenshot);
+      setUiHierarchyXml(xml);
+      setSelectedElementId(null);
+      setHighlightedElementId(null);
     } catch (err: any) {
-      alert(`Capture step failed: ${err.message}`);
+      alert(`Falha na inspeção da tela: ${err.message}`);
     } finally {
       setIsCapturingStep(false);
     }
+  };
+
+  // Restore step structure into Funnel Board
+  const handleRestoreToBoard = (step: FunnelStep) => {
+    setCapturedImage(step.screenshot);
+    setUiHierarchyXml(step.xml);
+    setSelectedElementId(step.selectedElement?.id || null);
+    setHighlightedElementId(null);
+    setCurrentPage('funnelboard');
   };
 
   return (
@@ -148,14 +176,22 @@ export function App() {
           appVersion="2.0.0"
         />
 
-        <main className="flex-1 p-4 overflow-y-auto">
+        <main className="flex-1 p-3 overflow-y-auto w-full">
           {currentPage === 'funnelboard' && (
             <FunnelBoard
               devices={devices}
               selectedDevice={selectedDevice}
               setSelectedDevice={setSelectedDevice}
               onRefreshDevices={refreshDevices}
-              onAddToFunnel={(step) => setFunnelSteps(prev => [...prev, step])}
+              onAddToFlow={(step) => setFunnelSteps(prev => [...prev, step])}
+              capturedImage={capturedImage}
+              setCapturedImage={setCapturedImage}
+              uiHierarchyXml={uiHierarchyXml}
+              setUiHierarchyXml={setUiHierarchyXml}
+              selectedElementId={selectedElementId}
+              setSelectedElementId={setSelectedElementId}
+              highlightedElementId={highlightedElementId}
+              setHighlightedElementId={setHighlightedElementId}
             />
           )}
 
@@ -166,6 +202,7 @@ export function App() {
               selectedDevice={selectedDevice}
               onCaptureStep={handleCaptureFunnelStep}
               isCapturing={isCapturingStep}
+              onRestoreToBoard={handleRestoreToBoard}
             />
           )}
 

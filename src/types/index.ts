@@ -49,9 +49,13 @@ export interface DetectedAdb {
 export interface FunnelStep {
   id: string;
   title: string;
+  packageName: string;
   timestamp: string;
+  formattedDate: string;
   screenshot: string;
   xml: string;
+  allElements?: UIElement[];
+  rootElements?: UIElement[];
   selectedElement?: UIElement | null;
   actionTaken?: string;
   notes?: string;

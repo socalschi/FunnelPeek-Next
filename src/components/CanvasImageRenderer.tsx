@@ -277,60 +277,60 @@ export const CanvasImageRenderer: React.FC<CanvasImageRendererProps> = ({
   };
 
   return (
-    <div className="relative flex-1 h-full min-h-[480px] bg-slate-900 rounded-xl overflow-hidden flex flex-col border border-slate-800">
+    <div className="relative flex-1 h-full min-h-[480px] bg-slate-100 dark:bg-slate-950 rounded-2xl overflow-hidden flex flex-col border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
       {/* Floating Canvas Controls */}
-      <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 p-1 bg-slate-800/80 backdrop-blur-md border border-slate-700/60 rounded-lg text-slate-300 shadow-lg">
+      <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 p-1 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border border-slate-200 dark:border-slate-700/80 rounded-xl text-slate-700 dark:text-slate-200 shadow-md transition-colors">
         <button
           onClick={() => setZoom(z => Math.min(z * 1.25, 10))}
-          className="p-1.5 rounded hover:bg-slate-700 hover:text-white transition-colors"
+          className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
           title="Zoom In"
         >
           <ZoomIn className="w-4 h-4" />
         </button>
         <button
           onClick={() => setZoom(z => Math.max(z * 0.8, 0.1))}
-          className="p-1.5 rounded hover:bg-slate-700 hover:text-white transition-colors"
+          className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
           title="Zoom Out"
         >
           <ZoomOut className="w-4 h-4" />
         </button>
         <button
           onClick={fitToScreen}
-          className="p-1.5 rounded hover:bg-slate-700 hover:text-white transition-colors"
+          className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
           title="Fit to Screen"
         >
           <Maximize2 className="w-4 h-4" />
         </button>
         <button
           onClick={resetZoom}
-          className="p-1.5 rounded hover:bg-slate-700 hover:text-white transition-colors"
+          className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
           title="Reset Zoom (100%)"
         >
           <RotateCcw className="w-4 h-4" />
         </button>
-        <div className="w-[1px] h-4 bg-slate-700 mx-0.5" />
+        <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-700 mx-0.5" />
         <button
           onClick={() => setShowGrid(!showGrid)}
-          className={`p-1.5 rounded transition-colors ${showGrid ? 'bg-blue-600 text-white' : 'hover:bg-slate-700 hover:text-white'}`}
+          className={`p-1.5 rounded-lg transition-colors ${showGrid ? 'bg-blue-600 text-white shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-slate-700'}`}
           title="Toggle Grid Overlay"
         >
           <Grid className="w-4 h-4" />
         </button>
         <button
           onClick={() => setShowAllRectangles(!showAllRectangles)}
-          className={`p-1.5 rounded transition-colors ${showAllRectangles ? 'bg-blue-600 text-white' : 'hover:bg-slate-700 hover:text-white'}`}
+          className={`p-1.5 rounded-lg transition-colors ${showAllRectangles ? 'bg-blue-600 text-white shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-slate-700'}`}
           title="Highlight All Bounding Boxes"
         >
           <Eye className="w-4 h-4" />
         </button>
-        <span className="text-xs font-mono px-2 text-slate-400">
+        <span className="text-xs font-mono px-2 text-slate-500 dark:text-slate-400">
           {Math.round(zoom * 100)}%
         </span>
       </div>
 
       {/* Coordinate & Dimensions Pill at Bottom */}
       {mousePos && (
-        <div className="absolute bottom-3 left-3 z-20 px-3 py-1 bg-slate-800/80 backdrop-blur-md border border-slate-700/60 rounded-lg text-xs font-mono text-slate-300 shadow">
+        <div className="absolute bottom-3 left-3 z-20 px-3 py-1 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border border-slate-200 dark:border-slate-700/80 rounded-lg text-xs font-mono text-slate-700 dark:text-slate-300 shadow transition-colors">
           X: {mousePos.imgX} | Y: {mousePos.imgY} ({imageDimensions.width}×{imageDimensions.height})
         </div>
       )}
@@ -351,9 +351,9 @@ export const CanvasImageRenderer: React.FC<CanvasImageRendererProps> = ({
         onContextMenu={(e) => e.preventDefault()}
       >
         {!base64Image ? (
-          <div className="w-full h-full flex flex-col items-center justify-center text-slate-500">
-            <p className="text-sm">No screenshot captured.</p>
-            <p className="text-xs text-slate-600 mt-1">Select an active device and click "Capture Screen".</p>
+          <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 p-6 text-center">
+            <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Nenhuma tela inspecionada.</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Selecione o aparelho conectado e clique em "Inspect Screen" para analisar a UI.</p>
           </div>
         ) : (
           <canvas ref={canvasRef} className="w-full h-full block" />

@@ -231,3 +231,46 @@ export function generateSelectors(element: UIElement): { label: string; code: st
 
   return selectors;
 }
+
+/**
+ * Extracts the primary active application package from the UI hierarchy elements
+ */
+export function extractActivePackage(elements: UIElement[]): string {
+  if (!elements || elements.length === 0) return 'com.android.unknown';
+
+  const counts: { [pkg: string]: number } = {};
+  for (const el of elements) {
+    if (el.package && el.package !== 'com.android.systemui' && el.package !== 'android') {
+      counts[el.package] = (counts[el.package] || 0) + 1;
+    }
+  }
+
+  let dominantPkg = '';
+  let maxCount = 0;
+  for (const [pkg, count] of Object.entries(counts)) {
+    if (count > maxCount) {
+      maxCount = count;
+      dominantPkg = pkg;
+    }
+  }
+
+  return dominantPkg || elements.find(e => e.package)?.package || 'com.android.launcher';
+}
+
+/**
+ * Formats a timestamp into Brazilian standard: DD/MM/YY - HH:mm:ss
+ */
+export function formatBrazilianDateTime(dateInput: Date | string | number): string {
+  const d = new Date(dateInput);
+  if (isNaN(d.getTime())) return '';
+
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const year = String(d.getFullYear()).slice(-2);
+
+  const hours = String(d.getHours()).padStart(2, '0');
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+  const seconds = String(d.getSeconds()).padStart(2, '0');
+
+  return `${day}/${month}/${year} - ${hours}:${minutes}:${seconds}`;
+}

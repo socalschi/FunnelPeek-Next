@@ -19,7 +19,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const menuItems = [
     {
       id: 'funnelboard',
-      label: 'FunnelBoard',
+      label: 'Funnel Board',
       description: 'UI Hierarchy Inspector & Canvas',
       icon: LayoutDashboard
     },
