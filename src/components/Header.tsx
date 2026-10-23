@@ -1,34 +1,43 @@
 import React from 'react';
-import { Menu, Smartphone, Moon, Sun, Terminal } from 'lucide-react';
+import { Menu, Smartphone, RefreshCw, ScanEye, Download, Upload, Check } from 'lucide-react';
 import { Device } from '../types/index.ts';
 
 interface HeaderProps {
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
   selectedDevice: string | null;
+  setSelectedDevice: (id: string) => void;
   devices: Device[];
-  adbPath: string | null;
-  adbVersion: string | null;
-  darkMode: boolean;
-  setDarkMode: (dark: boolean) => void;
-  onOpenAdbModal: () => void;
+  onRefreshDevices: () => Promise<void>;
+  onInspect: () => Promise<void>;
+  isCapturing: boolean;
+  hasCapturedImage: boolean;
+  onAddToFlow?: () => void;
+  justAddedToFlow?: boolean;
+  onLoadZip: () => Promise<void>;
+  onSaveZip: () => Promise<void>;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   sidebarOpen,
   setSidebarOpen,
   selectedDevice,
+  setSelectedDevice,
   devices,
-  adbPath,
-  adbVersion,
-  darkMode,
-  setDarkMode,
-  onOpenAdbModal
+  onRefreshDevices,
+  onInspect,
+  isCapturing,
+  hasCapturedImage,
+  onAddToFlow,
+  justAddedToFlow,
+  onLoadZip,
+  onSaveZip
 }) => {
   return (
     <header className="border-b border-slate-200 dark:border-jb-border bg-white dark:bg-jb-panel sticky top-0 z-30 transition-colors">
-      <div className="px-4 py-2.5 flex items-center justify-between">
-        <div className="flex items-center space-x-3">
+      <div className="px-3.5 py-1.5 flex items-center justify-between gap-3">
+        {/* Left: Menu Toggle + App Brand */}
+        <div className="flex items-center space-x-2.5 shrink-0">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-jb-hover text-slate-600 dark:text-jb-text transition-colors"
@@ -37,12 +46,12 @@ export const Header: React.FC<HeaderProps> = ({
             <Menu className="w-4 h-4" />
           </button>
 
-          <div className="flex items-center space-x-2.5">
-            <div className="w-7 h-7 rounded bg-jb-accent flex items-center justify-center shadow-xs">
+          <div className="flex items-center space-x-2">
+            <div className="w-6 h-6 rounded bg-jb-accent flex items-center justify-center shadow-xs">
               <img
                 src="/FP2.png"
                 alt="FP"
-                className="w-5 h-5 object-contain"
+                className="w-4 h-4 object-contain"
                 onError={(e) => {
                   (e.target as HTMLElement).style.display = 'none';
                 }}
@@ -53,7 +62,7 @@ export const Header: React.FC<HeaderProps> = ({
                 <h1 className="font-bold text-sm text-slate-900 dark:text-jb-text tracking-tight leading-none">
                   FunnelPeek
                 </h1>
-                <span className="text-[10px] px-1.5 py-0.2 rounded font-semibold bg-blue-50 dark:bg-jb-hover text-jb-accent border border-blue-200 dark:border-jb-border">
+                <span className="text-[9px] px-1.5 py-0.2 rounded font-semibold bg-blue-50 dark:bg-jb-hover text-jb-accent border border-blue-200 dark:border-jb-border">
                   NEXT 2.0
                 </span>
               </div>
@@ -61,41 +70,84 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
 
-        {/* Center / Right Status badges */}
-        <div className="flex items-center space-x-2">
-          {/* ADB Path status badge */}
+        {/* Right Action Bar (Device selector, Refresh, Inspect Screen, Add to Flow, Load Zip, Save Zip) */}
+        <div className="flex items-center gap-2 flex-wrap justify-end">
+          {/* Device Selector */}
+          <div className="flex items-center gap-1">
+            <Smartphone className="w-3.5 h-3.5 text-jb-accent shrink-0" />
+            <select
+              value={selectedDevice || ''}
+              onChange={(e) => setSelectedDevice(e.target.value)}
+              className="text-xs font-medium py-1 px-2.5 rounded border border-slate-300 dark:border-jb-border bg-white dark:bg-jb-elevated text-slate-800 dark:text-jb-text focus:outline-none focus:ring-1 focus:ring-jb-accent max-w-[190px] truncate"
+            >
+              {devices.length === 0 ? (
+                <option value="">Nenhum Aparelho Conectado</option>
+              ) : (
+                devices.map(d => (
+                  <option key={d.id} value={d.id}>
+                    {d.model ? `${d.model} (${d.id})` : d.id}
+                  </option>
+                ))
+              )}
+            </select>
+
+            <button
+              onClick={onRefreshDevices}
+              className="p-1 rounded hover:bg-slate-100 dark:hover:bg-jb-hover text-slate-500 dark:text-jb-textMuted transition-colors"
+              title="Atualizar lista de aparelhos"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          <div className="w-[1px] h-4 bg-slate-200 dark:bg-jb-border mx-0.5" />
+
+          {/* Inspect Screen Button */}
           <button
-            onClick={onOpenAdbModal}
-            className="hidden md:flex items-center space-x-2 px-2.5 py-1 rounded border border-slate-200 dark:border-jb-border bg-slate-50 dark:bg-jb-elevated hover:bg-slate-100 dark:hover:bg-jb-hover text-xs transition-colors"
-            title="Click to configure or view ADB binary path"
+            onClick={onInspect}
+            disabled={isCapturing || !selectedDevice}
+            className="px-3 py-1.5 rounded bg-jb-accent hover:bg-[#2F65D4] disabled:bg-slate-300 dark:disabled:bg-jb-elevated disabled:text-slate-500 dark:disabled:text-jb-textMuted text-white font-medium text-xs flex items-center gap-1.5 shadow-xs transition-colors shrink-0"
+            title="Inspecionar e analisar toda a estrutura da tela atual"
           >
-            <Terminal className="w-3.5 h-3.5 text-jb-accent" />
-            <span className="font-mono text-slate-700 dark:text-jb-text truncate max-w-[200px] text-[11px]">
-              {adbPath ? adbPath.split('\\').pop() : 'ADB Not Configured'}
-            </span>
-            {adbVersion && (
-              <span className="w-1.5 h-1.5 rounded-full bg-jb-success" title="ADB Connected" />
-            )}
+            <ScanEye className={`w-3.5 h-3.5 ${isCapturing ? 'animate-spin' : ''}`} />
+            <span>{isCapturing ? 'Analisando...' : 'Inspect Screen'}</span>
           </button>
 
-          {/* Active Device Badge */}
-          {selectedDevice && (
-            <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded bg-emerald-50 dark:bg-[#1E3326] border border-emerald-200 dark:border-[#2B543A] text-[11px] text-emerald-800 dark:text-jb-success">
-              <Smartphone className="w-3 h-3 text-emerald-600 dark:text-jb-success" />
-              <span className="font-medium">
-                {devices.find(d => d.id === selectedDevice)?.model || selectedDevice}
-              </span>
-              <span className="w-1.5 h-1.5 rounded-full bg-jb-success animate-pulse" />
-            </div>
+          {/* Add to Flow Button */}
+          {hasCapturedImage && onAddToFlow && (
+            <button
+              onClick={onAddToFlow}
+              className={`px-3 py-1.5 rounded font-medium text-xs flex items-center gap-1.5 border transition-all shrink-0 ${
+                justAddedToFlow
+                  ? 'bg-jb-success text-white border-jb-success'
+                  : 'bg-slate-50 dark:bg-jb-elevated hover:bg-slate-100 dark:hover:bg-jb-hover text-slate-800 dark:text-jb-text border-slate-300 dark:border-jb-border'
+              }`}
+              title="Salvar estrutura completa no Funnel Flow para análise posterior"
+            >
+              {justAddedToFlow && <Check className="w-3.5 h-3.5 text-white" />}
+              <span>{justAddedToFlow ? 'Salvo no Flow!' : 'Add to Flow'}</span>
+            </button>
           )}
 
-          {/* Dark / Light Toggle */}
+          <div className="w-[1px] h-4 bg-slate-200 dark:bg-jb-border mx-0.5" />
+
+          {/* Download Icon: Carregar pacote .zip existente */}
           <button
-            onClick={() => setDarkMode(!darkMode)}
-            className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-jb-hover text-slate-600 dark:text-jb-text transition-colors"
-            title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            onClick={onLoadZip}
+            className="p-1.5 rounded border border-slate-200 dark:border-jb-border hover:bg-slate-100 dark:hover:bg-jb-hover text-slate-600 dark:text-jb-text transition-colors shrink-0"
+            title="Carregar pacote .zip existente"
           >
-            {darkMode ? <Sun className="w-4 h-4 text-jb-warning" /> : <Moon className="w-4 h-4" />}
+            <Download className="w-3.5 h-3.5" />
+          </button>
+
+          {/* Upload Icon: Salvar inspeção como pacote .zip */}
+          <button
+            onClick={onSaveZip}
+            disabled={!hasCapturedImage}
+            className="p-1.5 rounded border border-slate-200 dark:border-jb-border hover:bg-slate-100 dark:hover:bg-jb-hover text-slate-600 dark:text-jb-text disabled:opacity-40 transition-colors shrink-0"
+            title="Salvar inspeção como pacote .zip"
+          >
+            <Upload className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>

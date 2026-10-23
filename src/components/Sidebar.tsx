@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, GitFork, Package, Info, ChevronRight, X } from 'lucide-react';
+import { LayoutDashboard, GitFork, Package, Info, ChevronRight, X, Terminal, Sun, Moon } from 'lucide-react';
 
 interface SidebarProps {
   currentPage: string;
@@ -7,6 +7,11 @@ interface SidebarProps {
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
   appVersion: string;
+  adbPath: string | null;
+  adbVersion: string | null;
+  onOpenAdbModal: () => void;
+  darkMode: boolean;
+  setDarkMode: (dark: boolean) => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -14,7 +19,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
   setCurrentPage,
   sidebarOpen,
   setSidebarOpen,
-  appVersion
+  appVersion,
+  adbPath,
+  adbVersion,
+  onOpenAdbModal,
+  darkMode,
+  setDarkMode
 }) => {
   const menuItems = [
     {
@@ -104,12 +114,37 @@ export const Sidebar: React.FC<SidebarProps> = ({
           })}
         </div>
 
-        {/* Footer info */}
-        <div className="p-3 border-t border-slate-100 dark:border-jb-border text-[11px] text-slate-400 dark:text-jb-textMuted flex items-center justify-between">
-          <span>FunnelPeek Next</span>
-          <span className="font-mono bg-slate-100 dark:bg-jb-elevated dark:text-jb-text px-1.5 py-0.5 rounded text-[10px] border border-slate-200 dark:border-jb-border">
-            v{appVersion}
-          </span>
+        {/* Footer info with ADB & Dark/Light mode buttons to the right of version */}
+        <div className="p-2.5 border-t border-slate-100 dark:border-jb-border text-[11px] text-slate-400 dark:text-jb-textMuted flex items-center justify-between gap-1.5">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <span className="truncate">FunnelPeek Next</span>
+            <span className="font-mono bg-slate-100 dark:bg-jb-elevated dark:text-jb-text px-1 py-0.2 rounded text-[10px] border border-slate-200 dark:border-jb-border shrink-0">
+              v{appVersion}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-0.5 shrink-0">
+            {/* ADB Config Button */}
+            <button
+              onClick={onOpenAdbModal}
+              className="p-1 rounded hover:bg-slate-100 dark:hover:bg-jb-hover text-slate-600 dark:text-jb-text border border-transparent hover:border-slate-200 dark:hover:border-jb-border transition-colors relative"
+              title={adbPath ? `ADB: ${adbPath} (${adbVersion || 'Conectado'})` : 'Configurar caminho do ADB'}
+            >
+              <Terminal className="w-3.5 h-3.5 text-jb-accent" />
+              {adbVersion && (
+                <span className="w-1.5 h-1.5 rounded-full bg-jb-success absolute top-0.5 right-0.5" />
+              )}
+            </button>
+
+            {/* Dark / Light Toggle */}
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              className="p-1 rounded hover:bg-slate-100 dark:hover:bg-jb-hover text-slate-600 dark:text-jb-text border border-transparent hover:border-slate-200 dark:hover:border-jb-border transition-colors"
+              title={darkMode ? 'Mudar para Modo Claro' : 'Mudar para Modo Escuro'}
+            >
+              {darkMode ? <Sun className="w-3.5 h-3.5 text-jb-warning" /> : <Moon className="w-3.5 h-3.5" />}
+            </button>
+          </div>
         </div>
       </div>
     </aside>

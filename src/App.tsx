@@ -27,6 +27,10 @@ export function App() {
   const [uiHierarchyXml, setUiHierarchyXml] = useState<string>('');
   const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
   const [highlightedElementId, setHighlightedElementId] = useState<string | null>(null);
+  const [isCapturing, setIsCapturing] = useState(false);
+  const [isSecuredScreen, setIsSecuredScreen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [justAddedToFlow, setJustAddedToFlow] = useState(false);
 
   // Funnel Flow sequence state
   const [funnelSteps, setFunnelSteps] = useState<FunnelStep[]>([]);
@@ -214,6 +218,91 @@ export function App() {
     }
   };
 
+  // Inspect current device screen & hierarchy
+  const handleInspect = async () => {
+    if (!selectedDevice || !window.electronAPI) return;
+    setIsCapturing(true);
+    setErrorMessage(null);
+    setIsSecuredScreen(false);
+
+    try {
+      const screenshot = await window.electronAPI.adbPullScreenshot(selectedDevice);
+      setCapturedImage(screenshot);
+
+      const xml = await window.electronAPI.adbDumpUi(selectedDevice);
+      setUiHierarchyXml(xml);
+
+      setSelectedElementId(null);
+      setHighlightedElementId(null);
+      setCurrentPage('funnelboard');
+    } catch (err: any) {
+      console.error('Inspection failed:', err);
+      if (err.message && (err.message.includes('blank') || err.message.includes('secured'))) {
+        setIsSecuredScreen(true);
+      }
+      setErrorMessage(err.message || 'Falha ao inspecionar tela do dispositivo.');
+    } finally {
+      setIsCapturing(false);
+    }
+  };
+
+  // Save current capture as ZIP package
+  const handleSaveZip = async () => {
+    if (!capturedImage || !uiHierarchyXml || !window.electronAPI) return;
+    try {
+      const res = await window.electronAPI.saveFunnelZip({
+        imageData: capturedImage,
+        xmlData: uiHierarchyXml,
+        deviceId: selectedDevice || 'device'
+      });
+      if (res.success) {
+        alert('Arquivo ZIP da captura salvo com sucesso!');
+      }
+    } catch (err: any) {
+      alert(`Falha ao salvar: ${err.message}`);
+    }
+  };
+
+  // Load existing capture from ZIP package
+  const handleLoadZip = async () => {
+    if (!window.electronAPI) return;
+    try {
+      const res = await window.electronAPI.loadFunnelZip();
+      if (res.success && res.data) {
+        setCapturedImage(res.data.imageData);
+        setUiHierarchyXml(res.data.xmlData);
+        setSelectedElementId(null);
+        setHighlightedElementId(null);
+        setCurrentPage('funnelboard');
+      }
+    } catch (err: any) {
+      alert(`Falha ao carregar ZIP: ${err.message}`);
+    }
+  };
+
+  // Add current screen to Funnel Flow sequence
+  const handleAddCurrentToFlow = () => {
+    if (!capturedImage || !uiHierarchyXml) return;
+    const { rootElements, allElements } = parseHierarchyXml(uiHierarchyXml);
+    const pkg = extractActivePackage(allElements);
+    const selectedEl = allElements.find(e => e.id === selectedElementId) || null;
+    const step: FunnelStep = {
+      id: `step_${Date.now()}`,
+      title: pkg,
+      packageName: pkg,
+      timestamp: new Date().toISOString(),
+      formattedDate: formatBrazilianDateTime(Date.now()),
+      screenshot: capturedImage,
+      xml: uiHierarchyXml,
+      allElements,
+      rootElements,
+      selectedElement: selectedEl
+    };
+    setFunnelSteps(prev => [...prev, step]);
+    setJustAddedToFlow(true);
+    setTimeout(() => setJustAddedToFlow(false), 2000);
+  };
+
   // Restore step structure into Funnel Board
   const handleRestoreToBoard = (step: FunnelStep) => {
     setCapturedImage(step.screenshot);
@@ -229,12 +318,16 @@ export function App() {
         sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}
         selectedDevice={selectedDevice}
+        setSelectedDevice={setSelectedDevice}
         devices={devices}
-        adbPath={adbPath}
-        adbVersion={adbVersion}
-        darkMode={darkMode}
-        setDarkMode={setDarkMode}
-        onOpenAdbModal={() => setIsAdbModalOpen(true)}
+        onRefreshDevices={refreshDevices}
+        onInspect={handleInspect}
+        isCapturing={isCapturing}
+        hasCapturedImage={Boolean(capturedImage)}
+        onAddToFlow={handleAddCurrentToFlow}
+        justAddedToFlow={justAddedToFlow}
+        onLoadZip={handleLoadZip}
+        onSaveZip={handleSaveZip}
       />
 
       <div className="flex-1 flex overflow-hidden">
@@ -244,16 +337,17 @@ export function App() {
           sidebarOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
           appVersion="2.0.0"
+          adbPath={adbPath}
+          adbVersion={adbVersion}
+          onOpenAdbModal={() => setIsAdbModalOpen(true)}
+          darkMode={darkMode}
+          setDarkMode={setDarkMode}
         />
 
-        <main className="flex-1 p-3 overflow-y-auto w-full">
+        <main className="flex-1 p-2.5 overflow-hidden w-full flex flex-col min-h-0">
           {currentPage === 'funnelboard' && (
             <FunnelBoard
-              devices={devices}
               selectedDevice={selectedDevice}
-              setSelectedDevice={setSelectedDevice}
-              onRefreshDevices={refreshDevices}
-              onAddToFlow={(step) => setFunnelSteps(prev => [...prev, step])}
               capturedImage={capturedImage}
               setCapturedImage={setCapturedImage}
               uiHierarchyXml={uiHierarchyXml}
@@ -262,34 +356,44 @@ export function App() {
               setSelectedElementId={setSelectedElementId}
               highlightedElementId={highlightedElementId}
               setHighlightedElementId={setHighlightedElementId}
+              isSecuredScreen={isSecuredScreen}
+              errorMessage={errorMessage}
+              setErrorMessage={setErrorMessage}
+              onInspect={handleInspect}
             />
           )}
 
           {currentPage === 'funnelflow' && (
-            <FunnelFlow
-              steps={funnelSteps}
-              setSteps={setFunnelSteps}
-              selectedDevice={selectedDevice}
-              onCaptureStep={handleCaptureFunnelStep}
-              isCapturing={isCapturingStep}
-              onRestoreToBoard={handleRestoreToBoard}
-            />
+            <div className="flex-1 overflow-y-auto">
+              <FunnelFlow
+                steps={funnelSteps}
+                setSteps={setFunnelSteps}
+                selectedDevice={selectedDevice}
+                onCaptureStep={handleCaptureFunnelStep}
+                isCapturing={isCapturingStep}
+                onRestoreToBoard={handleRestoreToBoard}
+              />
+            </div>
           )}
 
           {currentPage === 'packages' && (
-            <ManagePackages
-              devices={devices}
-              selectedDevice={selectedDevice}
-              setSelectedDevice={setSelectedDevice}
-            />
+            <div className="flex-1 overflow-y-auto">
+              <ManagePackages
+                devices={devices}
+                selectedDevice={selectedDevice}
+                setSelectedDevice={setSelectedDevice}
+              />
+            </div>
           )}
 
           {currentPage === 'about' && (
-            <About
-              appVersion="2.0.0"
-              adbVersion={adbVersion}
-              platform={window.electronAPI?.platform || 'windows'}
-            />
+            <div className="flex-1 overflow-y-auto">
+              <About
+                appVersion="2.0.0"
+                adbVersion={adbVersion}
+                platform={window.electronAPI?.platform || 'windows'}
+              />
+            </div>
           )}
         </main>
       </div>
