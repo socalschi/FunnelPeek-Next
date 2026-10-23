@@ -70,27 +70,13 @@ export const Header: React.FC<HeaderProps> = ({
             <Menu className="w-4 h-4" />
           </button>
 
-          <div className="flex items-center space-x-2">
-            <div className="w-6 h-6 rounded bg-jb-accent/15 border border-jb-accent/30 flex items-center justify-center shadow-xs overflow-hidden">
-              <img
-                src="/FP2.png"
-                alt="FP"
-                className="w-5 h-5 object-contain"
-                onError={(e) => {
-                  (e.target as HTMLElement).style.display = 'none';
-                }}
-              />
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <h1 className="font-bold text-sm text-slate-900 dark:text-jb-text tracking-tight leading-none">
-                  FunnelPeek
-                </h1>
-                <span className="text-[9px] px-1.5 py-0.2 rounded font-semibold bg-blue-50 dark:bg-jb-hover text-jb-accent border border-blue-200 dark:border-jb-border">
-                  NEXT 2.0
-                </span>
-              </div>
-            </div>
+          <div className="flex items-center gap-1.5">
+            <h1 className="font-bold text-sm text-slate-900 dark:text-jb-text tracking-tight leading-none">
+              FunnelPeek
+            </h1>
+            <span className="text-[9px] px-1.5 py-0.2 rounded font-semibold bg-slate-100 dark:bg-jb-elevated text-slate-600 dark:text-jb-textMuted border border-slate-200 dark:border-jb-border">
+              NEXT 2.0
+            </span>
           </div>
         </div>
 
