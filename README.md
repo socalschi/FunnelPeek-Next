@@ -49,6 +49,17 @@ npm run build
 npm start
 ```
 
+### 📦 Gerar Instaladores e Executáveis (Windows x64)
+```bash
+# Gerar instalador oficial padrão (Setup.exe com atalhos e desinstalador)
+npm run dist
+
+# Gerar executável portátil standalone (.exe único que roda direto)
+npm run dist:portable
+```
+
+Os executáveis gerados são salvos automaticamente na pasta `release/`.
+
 ---
 
 ## 📂 Estrutura do Projeto
@@ -77,14 +88,16 @@ h:\Funnel Peek Next\
 │   ├── App.tsx
 │   ├── main.tsx
 │   └── index.css             # Tailwind CSS
-├── public/                   # Ícones e assets recuperados do binário
+├── scripts/                  # Scripts utilitários de empacotamento
+├── public/                   # Ícones e assets do aplicativo
 ├── vite.config.ts            # Configuração Vite com vite-plugin-electron
 └── package.json
 ```
 
 ---
 
-## 📄 Créditos e Licença
+## 📄 Créditos e Autoria
 
-* Projeto original criado por **Saeed Roshan** (2025).
-* Engenharia reversa, recuperação cirúrgica de código-fonte via REA e modernização da arquitetura realizada para **FunnelPeek Next 2.0**.
+* **Liderança & Desenvolvimento do Projeto:** Guilherme Socalschi
+* **Concepção Original:** Saeed Roshan (2025)
+* **Reconstrução e Modernização:** FunnelPeek Next 2.0 (Electron 34 + Vite 6 + React 18 + TypeScript)
