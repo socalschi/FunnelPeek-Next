@@ -204,13 +204,20 @@ export class AdbService {
   }
 
   /**
-   * Get ADB version
+   * Get ADB version (including Platform-Tools release version)
    */
   async getVersion(): Promise<string> {
     this.ensureClient();
     const out = await this.execAdbCli(['version']);
-    const match = out.match(/version\s+([\d.]+)/i);
-    return match ? `Android Debug Bridge version ${match[1]}` : out.trim();
+    const bridgeMatch = out.match(/Android Debug Bridge version\s+([\d.]+)/i);
+    const pkgMatch = out.match(/Version\s+([\d.]+)/i);
+    if (bridgeMatch && pkgMatch) {
+      return `v${bridgeMatch[1]} (Platform-Tools v${pkgMatch[1]})`;
+    }
+    if (bridgeMatch) {
+      return `v${bridgeMatch[1]}`;
+    }
+    return out.trim().split('\n')[0];
   }
 
   /**
