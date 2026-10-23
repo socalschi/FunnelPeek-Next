@@ -11,20 +11,20 @@ export const About: React.FC<AboutProps> = ({ appVersion, adbVersion, platform }
   return (
     <div className="max-w-4xl mx-auto space-y-4">
       <div className="bg-white dark:bg-jb-panel rounded p-6 border border-slate-200 dark:border-jb-border shadow-xs text-center">
-        {/* App Logo */}
-        <div className="w-16 h-16 rounded bg-jb-accent mx-auto flex items-center justify-center shadow-xs mb-3 p-3">
-          <img src="/FP2.png" alt="FunnelPeek Next" className="w-full h-full object-contain" />
+        {/* App Logo posicionado diretamente em cima do nome */}
+        <div className="mx-auto flex items-center justify-center mb-3">
+          <img src="/FP2.png" alt="FunnelPeek Next" className="w-16 h-16 object-contain drop-shadow-sm" />
         </div>
 
         <h2 className="text-xl font-bold text-slate-900 dark:text-jb-text tracking-tight">
           FunnelPeek Next
         </h2>
-        <span className="inline-block mt-1 text-xs font-semibold px-2 py-0.5 rounded bg-blue-50 dark:bg-jb-hover text-jb-accent border border-blue-200 dark:border-jb-border">
-          v{appVersion} (Modernized Edition)
+        <span className="inline-block mt-1 text-xs font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-jb-elevated text-slate-700 dark:text-jb-text border border-slate-200 dark:border-jb-border">
+          v{appVersion}
         </span>
 
         <p className="text-xs text-slate-600 dark:text-jb-textMuted max-w-lg mx-auto mt-2">
-          A high-performance Android UI hierarchy viewer, multi-screen funnel sequencer, and automated test locator generator.
+          Visualizador de hierarquia UI Android de alta performance, sequenciador de fluxos de telas (Funnel Flow) e gerador automatizado de seletores.
         </p>
 
         {/* Info Grid */}
@@ -47,14 +47,29 @@ export const About: React.FC<AboutProps> = ({ appVersion, adbVersion, platform }
           </div>
         </div>
 
-        {/* Credits */}
-        <div className="mt-6 pt-4 border-t border-slate-100 dark:border-jb-border text-xs text-slate-400 dark:text-jb-textMuted max-w-lg mx-auto space-y-1.5">
-          <p>
-            Original FunnelPeek created by <strong>Saeed Roshan</strong>.
-          </p>
-          <p>
-            Reconstructed & modernized with <strong>TypeScript, Fast Vite HMR, Auto-ADB Detection, Appium/Maestro Selectors & Multi-step Funnel Flow</strong>.
-          </p>
+        {/* Credits & Authorship */}
+        <div className="mt-6 pt-5 border-t border-slate-100 dark:border-jb-border text-xs text-slate-400 dark:text-jb-textMuted max-w-xl mx-auto space-y-2.5">
+          {/* Maestro Highlight Box */}
+          <div className="p-3 rounded-lg bg-blue-50/60 dark:bg-jb-elevated border border-blue-200/80 dark:border-jb-border text-slate-800 dark:text-jb-text flex items-center justify-center gap-2.5 shadow-xs">
+            <span className="text-base select-none">🎼</span>
+            <div className="text-center">
+              <span className="text-[11px] text-slate-500 dark:text-jb-textMuted block uppercase tracking-wider font-semibold">
+                Maestro do Projeto
+              </span>
+              <span className="font-bold text-sm text-slate-900 dark:text-white">
+                Guilherme Socalschi
+              </span>
+            </div>
+          </div>
+
+          <div className="pt-1 space-y-1">
+            <p>
+              FunnelPeek original concebido por <strong>Saeed Roshan</strong>.
+            </p>
+            <p className="text-[11px] text-slate-500 dark:text-jb-textMuted">
+              Reconstruído e potencializado com <strong>TypeScript, Fast Vite HMR, Detecção Automática de ADB, Multi-screen Funnel Flow & Seletores Maestro / Appium</strong>.
+            </p>
+          </div>
         </div>
       </div>
     </div>
