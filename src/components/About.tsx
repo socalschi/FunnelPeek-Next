@@ -41,7 +41,7 @@ export const About: React.FC<AboutProps> = ({ appVersion, adbVersion, platform }
 
           <div className="p-3 rounded bg-slate-50 dark:bg-jb-elevated/40 border border-slate-200 dark:border-jb-border">
             <span className="text-slate-400 dark:text-jb-textMuted block mb-0.5 text-[11px]">Platform</span>
-            <span className="font-semibold text-slate-800 dark:text-jb-text capitalize">{platform}</span>
+            <span className="font-semibold text-slate-800 dark:text-jb-text">{platform}</span>
           </div>
 
           <div className="p-3 rounded bg-slate-50 dark:bg-jb-elevated/40 border border-slate-200 dark:border-jb-border">

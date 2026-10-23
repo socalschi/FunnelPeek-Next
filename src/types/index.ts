@@ -69,6 +69,7 @@ export interface PackageInfo {
 
 export interface ElectronAPI {
   platform: string;
+  arch?: string;
   getAppVersion: () => Promise<string>;
   autoDetectAdb: () => Promise<DetectedAdb[]>;
   selectAdbFile: () => Promise<{ canceled: boolean; filePath?: string }>;

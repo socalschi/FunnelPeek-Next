@@ -1,7 +1,10 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
 contextBridge.exposeInMainWorld('electronAPI', {
-  platform: process.platform,
+  platform: process.platform === 'win32'
+    ? `Windows (${process.arch === 'x64' ? '64-bit' : process.arch})`
+    : `${process.platform} (${process.arch})`,
+  arch: process.arch,
   getAppVersion: () => ipcRenderer.invoke('get-version'),
 
   // ADB Auto-detect & Configuration

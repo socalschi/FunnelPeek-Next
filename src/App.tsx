@@ -397,7 +397,7 @@ export function App() {
               <About
                 appVersion="2.0.0"
                 adbVersion={adbVersion}
-                platform={window.electronAPI?.platform || 'windows'}
+                platform={window.electronAPI?.platform || 'Windows (64-bit)'}
               />
             </div>
           )}
