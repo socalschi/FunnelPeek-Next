@@ -163,7 +163,7 @@ export const ElementDetailsModal: React.FC<ElementDetailsModalProps> = ({
 
                 <div className="p-2.5 rounded bg-slate-50 dark:bg-jb-panel border border-slate-200 dark:border-jb-border">
                   <span className="text-slate-500 dark:text-jb-textMuted font-medium text-[11px]">Text</span>
-                  <p className="text-amber-600 dark:text-jb-warning font-semibold mt-0.5">
+                  <p className="text-emerald-700 dark:text-[#6AAB73] font-semibold mt-0.5">
                     {element.text ? `"${element.text}"` : 'None'}
                   </p>
                 </div>
@@ -303,7 +303,7 @@ export const ElementDetailsModal: React.FC<ElementDetailsModalProps> = ({
                     disabled={isExecuting || !deviceId}
                     className="p-2 rounded bg-white dark:bg-jb-elevated hover:bg-slate-100 dark:hover:bg-jb-hover border border-slate-200 dark:border-jb-border text-xs font-medium text-slate-700 dark:text-jb-text flex flex-col items-center gap-1 transition-colors"
                   >
-                    <Home className="w-3.5 h-3.5 text-jb-warning" />
+                    <Home className="w-3.5 h-3.5 text-jb-accent" />
                     Home
                   </button>
                   <button

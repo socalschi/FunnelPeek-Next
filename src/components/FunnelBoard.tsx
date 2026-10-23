@@ -282,8 +282,8 @@ export const FunnelBoard: React.FC<FunnelBoardProps> = ({
 
       {/* Security alert if screen is black/secured */}
       {isSecuredScreen && (
-        <div className="p-2.5 rounded bg-amber-50 dark:bg-[#332B1A] border border-amber-200 dark:border-jb-warning/40 text-xs text-amber-800 dark:text-jb-warning flex items-center gap-2 shrink-0">
-          <ShieldAlert className="w-4 h-4 text-amber-600 dark:text-jb-warning shrink-0" />
+        <div className="p-2.5 rounded bg-blue-50 dark:bg-jb-elevated border border-blue-200 dark:border-jb-border text-xs text-blue-900 dark:text-jb-text flex items-center gap-2 shrink-0">
+          <ShieldAlert className="w-4 h-4 text-jb-accent shrink-0" />
           <span>Tela com proteção (FLAG_SECURE ou bloqueada). A árvore hierárquica XML ainda foi inspecionada!</span>
         </div>
       )}

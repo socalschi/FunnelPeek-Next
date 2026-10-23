@@ -62,7 +62,7 @@ export const ElementTree: React.FC<ElementTreeProps> = ({
             isSelected
               ? 'bg-blue-100 dark:bg-jb-accentHover text-blue-900 dark:text-white border-jb-accent font-medium'
               : isHighlighted
-              ? 'bg-amber-100 dark:bg-[#332B1A] text-amber-900 dark:text-jb-warning border-jb-warning'
+              ? 'bg-blue-50 dark:bg-jb-hover text-slate-900 dark:text-white border-[#56A8F5]'
               : 'hover:bg-slate-100 dark:hover:bg-jb-hover border-transparent text-slate-700 dark:text-jb-text'
           }`}
         >
@@ -81,9 +81,9 @@ export const ElementTree: React.FC<ElementTreeProps> = ({
             </span>
           )}
 
-          {/* Text preview */}
+          {/* Text preview - Clean IntelliJ string green on subtle elevated background, no brown or yellow */}
           {element.text && (
-            <span className="text-amber-600 dark:text-jb-warning bg-amber-50 dark:bg-[#332B1A] px-1 py-0.2 rounded truncate max-w-[120px]">
+            <span className="text-emerald-700 dark:text-[#6AAB73] bg-slate-100 dark:bg-jb-elevated border border-slate-200 dark:border-jb-border px-1.5 py-0.2 rounded font-sans truncate max-w-[130px]" title={element.text}>
               "{element.text}"
             </span>
           )}
@@ -173,7 +173,7 @@ export const ElementTree: React.FC<ElementTreeProps> = ({
                   <span className="text-[10px] text-slate-400 dark:text-jb-textMuted">{el.bounds}</span>
                 </div>
                 {el.resourceId && <p className="text-slate-500 dark:text-jb-textMuted text-[11px] mt-0.5">ID: {el.resourceId}</p>}
-                {el.text && <p className="text-amber-600 dark:text-jb-warning text-[11px] mt-0.5 font-sans">"{el.text}"</p>}
+                {el.text && <p className="text-emerald-700 dark:text-[#6AAB73] text-[11px] mt-0.5 font-sans">"{el.text}"</p>}
               </div>
             ))}
           </div>

@@ -119,29 +119,46 @@ export const CanvasImageRenderer: React.FC<CanvasImageRendererProps> = ({
       ctx.save();
       if (isSelected) {
         ctx.strokeStyle = '#3574F0'; // IntelliJ accent / focus
-        ctx.fillStyle = 'rgba(53, 116, 240, 0.22)';
+        ctx.fillStyle = 'rgba(53, 116, 240, 0.20)';
         ctx.lineWidth = 2.5 / zoom;
       } else if (isHighlighted) {
-        ctx.strokeStyle = '#F2C55C'; // IntelliJ warning / yellow
-        ctx.fillStyle = 'rgba(242, 197, 92, 0.25)';
+        ctx.strokeStyle = '#56A8F5'; // Clean light blue for hover - NO yellow
+        ctx.fillStyle = 'rgba(86, 168, 245, 0.12)';
         ctx.lineWidth = 2 / zoom;
       } else {
-        ctx.strokeStyle = '#E55765'; // IntelliJ error / red outline
-        ctx.fillStyle = 'rgba(229, 87, 101, 0.05)';
+        ctx.strokeStyle = 'rgba(78, 81, 87, 0.6)'; // subtle divider outline
+        ctx.fillStyle = 'rgba(78, 81, 87, 0.05)';
         ctx.lineWidth = 1 / zoom;
       }
 
       ctx.fillRect(el.x1, el.y1, el.width, el.height);
       ctx.strokeRect(el.x1, el.y1, el.width, el.height);
 
-      // Label on selected
+      // Label on selected or highlighted
       if (isSelected || isHighlighted) {
-        const label = el.text ? `"${el.text.slice(0, 16)}"` : (el.resourceId?.split('/').pop() || el.tagName);
-        ctx.font = `${Math.max(11 / zoom, 10)}px monospace`;
-        ctx.fillStyle = isSelected ? '#2E436E' : '#393B40';
-        ctx.fillRect(el.x1, Math.max(0, el.y1 - 18 / zoom), ctx.measureText(label).width + 6 / zoom, 16 / zoom);
-        ctx.fillStyle = isSelected ? '#BCBEC4' : '#F2C55C';
-        ctx.fillText(label, el.x1 + 3 / zoom, Math.max(12 / zoom, el.y1 - 5 / zoom));
+        const label = el.text ? `"${el.text.slice(0, 18)}"` : (el.resourceId?.split('/').pop() || el.tagName);
+        const fontSize = Math.max(11 / zoom, 10);
+        ctx.font = `${fontSize}px monospace`;
+        const textMetrics = ctx.measureText(label);
+        const boxHeight = 17 / zoom;
+        const boxWidth = textMetrics.width + 8 / zoom;
+        const boxX = el.x1;
+        const boxY = Math.max(0, el.y1 - boxHeight - 2 / zoom);
+
+        if (isSelected) {
+          ctx.fillStyle = '#3574F0'; // Solid active accent
+          ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+          ctx.fillStyle = '#FFFFFF'; // Crisp white text
+        } else {
+          ctx.fillStyle = '#2B2D30'; // IntelliJ Panel surface
+          ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+          ctx.strokeStyle = '#56A8F5'; // Fine subtle light blue border
+          ctx.lineWidth = 1 / zoom;
+          ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
+          ctx.fillStyle = '#BCBEC4'; // IntelliJ primary text
+        }
+
+        ctx.fillText(label, boxX + 4 / zoom, boxY + boxHeight - 4 / zoom);
       }
 
       ctx.restore();
