@@ -378,7 +378,7 @@ export function App() {
           )}
 
           {currentPage === 'funnelflow' && (
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 h-full min-h-0 min-w-0 overflow-hidden flex flex-col">
               <FunnelFlow
                 steps={funnelSteps}
                 setSteps={setFunnelSteps}

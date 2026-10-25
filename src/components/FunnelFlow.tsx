@@ -100,21 +100,21 @@ export const FunnelFlow: React.FC<FunnelFlowProps> = ({
   }, [selectedStep?.xml]);
 
   return (
-    <div className="w-full space-y-3 px-1 pb-4">
+    <div className="h-full w-full flex flex-col min-h-0 min-w-0 overflow-hidden space-y-2">
       {/* Sleek Top Toolbar */}
-      <div className="bg-white dark:bg-jb-panel rounded p-3 border border-slate-200 dark:border-jb-border shadow-xs flex flex-wrap items-center justify-between gap-3">
+      <div className="bg-white dark:bg-jb-panel rounded p-2.5 border border-slate-200 dark:border-jb-border shadow-xs flex flex-wrap items-center justify-between gap-2 shrink-0">
         <div className="flex items-center gap-2.5">
           <div className="p-1.5 rounded bg-blue-50 dark:bg-jb-elevated text-jb-accent border border-blue-200 dark:border-jb-border">
             <Layers className="w-4 h-4" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-sm font-bold text-slate-900 dark:text-jb-text">Funnel Flow</h2>
-              <span className="text-[11px] font-medium px-2 py-0.2 rounded bg-slate-100 dark:bg-jb-elevated text-slate-600 dark:text-jb-textMuted border border-slate-200 dark:border-jb-border">
+              <h2 className="text-xs font-bold text-slate-900 dark:text-jb-text">Funnel Flow</h2>
+              <span className="text-[10px] font-medium px-1.5 py-0.2 rounded bg-slate-100 dark:bg-jb-elevated text-slate-600 dark:text-jb-textMuted border border-slate-200 dark:border-jb-border">
                 {steps.length} {steps.length === 1 ? 'tela registrada' : 'telas registradas'}
               </span>
             </div>
-            <p className="text-[11px] text-slate-500 dark:text-jb-textMuted">
+            <p className="text-[10px] text-slate-500 dark:text-jb-textMuted">
               Fluxo sequencial de navegação e histórico de estruturas XML
             </p>
           </div>
@@ -131,7 +131,7 @@ export const FunnelFlow: React.FC<FunnelFlowProps> = ({
                   }
                 }
               }}
-              className="px-3 py-1.5 rounded border border-slate-200 dark:border-jb-border hover:bg-rose-50 dark:hover:bg-[#351E20] text-slate-600 dark:text-jb-textMuted hover:text-rose-600 dark:hover:text-jb-error text-xs font-medium transition-colors"
+              className="px-2.5 py-1 rounded border border-slate-200 dark:border-jb-border hover:bg-rose-50 dark:hover:bg-[#351E20] text-slate-600 dark:text-jb-textMuted hover:text-rose-600 dark:hover:text-jb-error text-xs font-medium transition-colors"
             >
               Limpar Fluxo
             </button>
@@ -140,26 +140,26 @@ export const FunnelFlow: React.FC<FunnelFlowProps> = ({
           <button
             onClick={onCaptureStep}
             disabled={isCapturing || !selectedDevice}
-            className="px-3.5 py-1.5 rounded bg-jb-accent hover:bg-[#2F65D4] disabled:bg-slate-300 dark:disabled:bg-jb-elevated disabled:text-slate-500 dark:disabled:text-jb-textMuted text-white font-medium text-xs flex items-center gap-1.5 shadow-xs transition-colors"
+            className="px-3 py-1.5 rounded bg-jb-accent hover:bg-[#2F65D4] disabled:bg-slate-300 dark:disabled:bg-jb-elevated disabled:text-slate-500 dark:disabled:text-jb-textMuted text-white font-medium text-xs flex items-center gap-1.5 shadow-xs transition-colors"
           >
             <Camera className={`w-3.5 h-3.5 ${isCapturing ? 'animate-spin' : ''}`} />
-            {isCapturing ? 'Inspecionando Tela...' : 'Adicionar Tela ao Flow'}
+            {isCapturing ? 'Inspecionando...' : 'Adicionar Tela ao Flow'}
           </button>
         </div>
       </div>
 
       {/* Horizontal Flow Storyboard Container */}
-      <div className="bg-white dark:bg-jb-panel rounded p-3.5 border border-slate-200 dark:border-jb-border shadow-xs">
+      <div className="bg-white dark:bg-jb-panel rounded p-2.5 border border-slate-200 dark:border-jb-border shadow-xs shrink-0">
         {/* Top-Right Sort Order Button (Rotated 90º with opposing arrows, no text) */}
         {displayedSteps.length > 0 && (
-          <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-100 dark:border-jb-border/60">
+          <div className="flex items-center justify-between pb-1.5 mb-1.5 border-b border-slate-100 dark:border-jb-border/60">
             <span className="text-[11px] font-semibold text-slate-500 dark:text-jb-textMuted flex items-center gap-1.5">
               <Layers className="w-3.5 h-3.5 text-jb-accent" />
               Histórico de Telas ({displayedSteps.length})
             </span>
             <button
               onClick={toggleSortOrder}
-              className="p-1.5 rounded bg-slate-50 dark:bg-jb-elevated hover:bg-slate-100 dark:hover:bg-jb-border border border-slate-200 dark:border-jb-border text-slate-700 dark:text-jb-text transition-colors shadow-xs group"
+              className="p-1 rounded bg-slate-50 dark:bg-jb-elevated hover:bg-slate-100 dark:hover:bg-jb-border border border-slate-200 dark:border-jb-border text-slate-700 dark:text-jb-text transition-colors shadow-xs group"
               title={sortOrder === 'asc' 
                 ? 'Ordem atual: Crescente (criação mais antiga primeiro). Clique para Decrescente.' 
                 : 'Ordem atual: Decrescente (criação mais recente primeiro). Clique para Crescente.'}
@@ -170,15 +170,15 @@ export const FunnelFlow: React.FC<FunnelFlowProps> = ({
         )}
 
         {displayedSteps.length === 0 ? (
-          <div className="py-8 text-center text-slate-400 dark:text-jb-textMuted">
-            <Layers className="w-8 h-8 stroke-1 mx-auto text-slate-300 dark:text-jb-borderStrong mb-2" />
+          <div className="py-6 text-center text-slate-400 dark:text-jb-textMuted">
+            <Layers className="w-7 h-7 stroke-1 mx-auto text-slate-300 dark:text-jb-borderStrong mb-1.5" />
             <p className="text-xs font-semibold text-slate-700 dark:text-jb-text">Nenhuma tela no fluxo ainda</p>
             <p className="text-[11px] text-slate-400 dark:text-jb-textMuted max-w-md mx-auto mt-0.5">
               Conecte o aparelho, navegue até a tela desejada e clique em "Adicionar Tela ao Flow" para registrar a jornada com captura e estrutura XML.
             </p>
           </div>
         ) : (
-          <div className="flex items-start gap-3 overflow-x-auto pb-2 pt-1">
+          <div className="flex items-start gap-2.5 overflow-x-auto pb-1 pt-0.5">
             {displayedSteps.map((step, idx) => {
               const isSelected = selectedStep?.id === step.id;
 
@@ -188,14 +188,14 @@ export const FunnelFlow: React.FC<FunnelFlowProps> = ({
                   <div
                     onClick={() => setSelectedStepId(step.id)}
                     onDoubleClick={() => onRestoreToBoard(step)}
-                    className={`shrink-0 w-60 rounded border p-2.5 cursor-pointer transition-all flex flex-col justify-between ${
+                    className={`shrink-0 w-52 rounded border p-2 cursor-pointer transition-all flex flex-col justify-between ${
                       isSelected
                         ? 'bg-blue-50/70 dark:bg-jb-accentHover/60 border-jb-accent shadow-sm ring-1 ring-jb-accent'
                         : 'bg-slate-50 dark:bg-jb-elevated/40 border-slate-200 dark:border-jb-border hover:border-jb-borderStrong shadow-xs'
                     }`}
                   >
                     {/* Preview box */}
-                    <div className="w-full h-40 rounded bg-slate-200/80 dark:bg-jb-bg overflow-hidden flex items-center justify-center border border-slate-200 dark:border-jb-border mb-2 relative group">
+                    <div className="w-full h-32 rounded bg-slate-200/80 dark:bg-jb-bg overflow-hidden flex items-center justify-center border border-slate-200 dark:border-jb-border mb-1.5 relative group">
                       <img
                         src={`data:image/png;base64,${step.screenshot}`}
                         alt={step.packageName}
@@ -204,12 +204,14 @@ export const FunnelFlow: React.FC<FunnelFlowProps> = ({
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          removeStep(step.id);
+                          if (confirm(`Deseja excluir esta tela (${step.packageName}) do histórico?`)) {
+                            removeStep(step.id);
+                          }
                         }}
-                        className="absolute top-1.5 right-1.5 p-1 rounded bg-black/60 text-white hover:bg-rose-600 transition-colors opacity-0 group-hover:opacity-100 shadow-xs"
+                        className="absolute top-1 right-1 p-1 rounded bg-black/60 text-white hover:bg-rose-600 transition-colors opacity-0 group-hover:opacity-100 shadow-xs"
                         title="Remover tela"
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Trash2 className="w-3 h-3" />
                       </button>
                     </div>
 
@@ -223,23 +225,23 @@ export const FunnelFlow: React.FC<FunnelFlowProps> = ({
                       </span>
 
                       {/* Brazilian Date / Hour format: data - hora */}
-                      <span className="text-[11px] font-mono text-slate-500 dark:text-jb-textMuted flex items-center gap-1">
+                      <span className="text-[10px] font-mono text-slate-500 dark:text-jb-textMuted flex items-center gap-1">
                         <Clock className="w-3 h-3 text-slate-400 dark:text-jb-textMuted" />
                         {step.formattedDate || formatBrazilianDateTime(step.timestamp)}
                       </span>
                     </div>
 
                     {/* Actions row: Inspecionar no Board + Botão individual para apagar */}
-                    <div className="mt-2.5 flex items-center gap-1.5">
+                    <div className="mt-1.5 flex items-center gap-1">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           onRestoreToBoard(step);
                         }}
-                        className="flex-1 py-1.5 px-2 rounded bg-white dark:bg-jb-elevated border border-slate-200 dark:border-jb-border hover:bg-jb-accent hover:text-white hover:border-jb-accent dark:hover:bg-jb-accent text-slate-700 dark:text-jb-text text-xs font-medium flex items-center justify-center gap-1.5 transition-colors shadow-xs"
+                        className="flex-1 py-1 px-1.5 rounded bg-white dark:bg-jb-elevated border border-slate-200 dark:border-jb-border hover:bg-jb-accent hover:text-white hover:border-jb-accent dark:hover:bg-jb-accent text-slate-700 dark:text-jb-text text-[11px] font-medium flex items-center justify-center gap-1 transition-colors shadow-xs"
                         title="Restaurar toda a estrutura e abrir no Funnel Board"
                       >
-                        <ExternalLink className="w-3.5 h-3.5" />
+                        <ExternalLink className="w-3 h-3" />
                         Inspecionar
                       </button>
                       <button
@@ -249,10 +251,10 @@ export const FunnelFlow: React.FC<FunnelFlowProps> = ({
                             removeStep(step.id);
                           }
                         }}
-                        className="p-1.5 rounded bg-white dark:bg-jb-elevated border border-slate-200 dark:border-jb-border hover:bg-rose-50 dark:hover:bg-[#351E20] text-slate-400 hover:text-rose-600 dark:hover:text-jb-error transition-colors shadow-xs shrink-0"
+                        className="p-1 rounded bg-white dark:bg-jb-elevated border border-slate-200 dark:border-jb-border hover:bg-rose-50 dark:hover:bg-[#351E20] text-slate-400 hover:text-rose-600 dark:hover:text-jb-error transition-colors shadow-xs shrink-0"
                         title="Excluir esta tela do histórico"
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Trash2 className="w-3 h-3" />
                       </button>
                     </div>
                   </div>
@@ -260,7 +262,7 @@ export const FunnelFlow: React.FC<FunnelFlowProps> = ({
                   {/* Flow Arrow */}
                   {idx < displayedSteps.length - 1 && (
                     <div className="shrink-0 self-center text-slate-300 dark:text-jb-borderStrong">
-                      <ArrowRight className="w-4 h-4 stroke-2" />
+                      <ArrowRight className="w-3.5 h-3.5 stroke-2" />
                     </div>
                   )}
                 </React.Fragment>
@@ -270,11 +272,11 @@ export const FunnelFlow: React.FC<FunnelFlowProps> = ({
         )}
       </div>
 
-      {/* Selected Screen Deep Inspector: Clean Original Layout with Structured XML */}
+      {/* Selected Screen Deep Inspector: Fits Remaining Viewport Perfectly with Zero Outer Vertical Scrolling */}
       {selectedStep && (
-        <div className="bg-white dark:bg-jb-panel rounded p-4 border border-slate-200 dark:border-jb-border shadow-xs flex flex-col lg:flex-row gap-5 items-stretch lg:h-[500px]">
+        <div className="bg-white dark:bg-jb-panel rounded p-3 border border-slate-200 dark:border-jb-border shadow-xs flex-1 min-h-0 flex flex-col lg:flex-row gap-4 items-stretch overflow-hidden">
           {/* Left Preview Column */}
-          <div className="w-full lg:w-[320px] xl:w-[350px] shrink-0 h-full flex flex-col justify-between">
+          <div className="w-full lg:w-[280px] xl:w-[320px] shrink-0 h-full flex flex-col justify-between min-h-0">
             <div className="flex-1 min-h-0 rounded overflow-hidden bg-slate-100 dark:bg-jb-bg flex items-center justify-center border border-slate-200 dark:border-jb-border p-2">
               <img
                 src={`data:image/png;base64,${selectedStep.screenshot}`}
@@ -282,14 +284,14 @@ export const FunnelFlow: React.FC<FunnelFlowProps> = ({
                 className="max-h-full max-w-full object-contain"
               />
             </div>
-            <div className="mt-2.5 flex items-center gap-2 shrink-0">
+            <div className="mt-2 flex items-center gap-1.5 shrink-0">
               <button
                 onClick={() => onRestoreToBoard(selectedStep)}
-                className="flex-1 py-2 px-3 rounded bg-jb-accent hover:bg-[#2F65D4] text-white font-medium text-xs flex items-center justify-center gap-1.5 shadow-xs transition-colors"
+                className="flex-1 py-1.5 px-2.5 rounded bg-jb-accent hover:bg-[#2F65D4] text-white font-medium text-xs flex items-center justify-center gap-1.5 shadow-xs transition-colors"
                 title="Abrir tela e estrutura completa no Funnel Board"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
-                Abrir esta Tela no Funnel Board
+                Abrir no Funnel Board
               </button>
               <button
                 onClick={() => {
@@ -297,25 +299,25 @@ export const FunnelFlow: React.FC<FunnelFlowProps> = ({
                     removeStep(selectedStep.id);
                   }
                 }}
-                className="py-2 px-2.5 rounded border border-slate-200 dark:border-jb-border bg-white dark:bg-jb-elevated hover:bg-rose-50 dark:hover:bg-[#351E20] text-slate-500 hover:text-rose-600 dark:hover:text-jb-error text-xs font-medium flex items-center justify-center gap-1.5 transition-colors shadow-xs shrink-0"
+                className="py-1.5 px-2 rounded border border-slate-200 dark:border-jb-border bg-white dark:bg-jb-elevated hover:bg-rose-50 dark:hover:bg-[#351E20] text-slate-500 hover:text-rose-600 dark:hover:text-jb-error text-xs font-medium flex items-center justify-center gap-1 transition-colors shadow-xs shrink-0"
                 title="Excluir esta tela do histórico"
               >
                 <Trash2 className="w-3.5 h-3.5" />
-                <span>Excluir</span>
+                <span className="hidden sm:inline">Excluir</span>
               </button>
             </div>
           </div>
 
           {/* Right Details Column: XML dump stretches down to match the bottom alignment of the button */}
-          <div className="flex-1 min-w-0 h-full flex flex-col justify-between">
+          <div className="flex-1 min-w-0 h-full flex flex-col justify-between min-h-0">
             {/* Top Row: Detalhes da Estrutura on the left, Anotações on the right */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 shrink-0 mb-2.5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 shrink-0 mb-2">
               {/* Detalhes da Estrutura (largura reduzida) */}
               <div className="flex flex-col space-y-1">
-                <h3 className="text-xs font-bold text-slate-500 dark:text-jb-textMuted uppercase tracking-wider">
+                <h3 className="text-[11px] font-bold text-slate-500 dark:text-jb-textMuted uppercase tracking-wider">
                   DETALHES DA ESTRUTURA ARMAZENADA
                 </h3>
-                <div className="p-3 rounded bg-slate-50 dark:bg-jb-elevated/40 border border-slate-200 dark:border-jb-border space-y-2 h-[96px] flex flex-col justify-center">
+                <div className="p-2.5 rounded bg-slate-50 dark:bg-jb-elevated/40 border border-slate-200 dark:border-jb-border space-y-1.5 h-[86px] flex flex-col justify-center">
                   <div className="flex justify-between items-center text-xs">
                     <span className="text-slate-500 dark:text-jb-textMuted font-medium">Package em Execução:</span>
                     <span className="font-mono font-bold text-jb-accent text-xs truncate max-w-[180px]" title={selectedStep.packageName}>
@@ -339,21 +341,21 @@ export const FunnelFlow: React.FC<FunnelFlowProps> = ({
 
               {/* Anotações da Etapa (ao lado dos detalhes) */}
               <div className="flex flex-col space-y-1">
-                <label className="text-xs font-bold text-slate-500 dark:text-jb-textMuted uppercase tracking-wider block">
+                <label className="text-[11px] font-bold text-slate-500 dark:text-jb-textMuted uppercase tracking-wider block">
                   Anotações da Etapa / Ação Realizada:
                 </label>
                 <textarea
                   value={selectedStep.notes || ''}
                   onChange={(e) => updateStepNotes(selectedStep.id, e.target.value)}
                   placeholder="Ex: Usuário preencheu os campos e clicou no botão Entrar..."
-                  className="w-full h-[96px] text-xs p-2.5 rounded border border-slate-200 dark:border-jb-border bg-slate-50 dark:bg-jb-elevated text-slate-900 dark:text-jb-text placeholder-slate-400 dark:placeholder-jb-textMuted focus:outline-none focus:ring-1 focus:ring-jb-accent resize-none"
+                  className="w-full h-[86px] text-xs p-2 rounded border border-slate-200 dark:border-jb-border bg-slate-50 dark:bg-jb-elevated text-slate-900 dark:text-jb-text placeholder-slate-400 dark:placeholder-jb-textMuted focus:outline-none focus:ring-1 focus:ring-jb-accent resize-none"
                 />
               </div>
             </div>
 
             {/* XML Dump Container - Stretches to align perfectly with bottom of "Abrir esta Tela no Funnel Board" button */}
             <div className="flex-1 min-h-0 flex flex-col">
-              <div className="flex items-center justify-between text-xs mb-1.5 shrink-0">
+              <div className="flex items-center justify-between text-xs mb-1 shrink-0">
                 <span className="font-medium text-slate-700 dark:text-jb-text flex items-center gap-1.5">
                   <FileText className="w-3.5 h-3.5 text-jb-accent" />
                   Preview do Dump XML
