@@ -274,3 +274,35 @@ export function formatBrazilianDateTime(dateInput: Date | string | number): stri
 
   return `${day}/${month}/${year} - ${hours}:${minutes}:${seconds}`;
 }
+
+/**
+ * Prettifies and indents an XML string to preserve its hierarchical tree structure
+ */
+export function formatXml(xmlString: string): string {
+  if (!xmlString || typeof xmlString !== 'string') return '';
+  let formatted = '';
+  let indent = 0;
+  const tab = '  ';
+  const tokens = xmlString.replace(/>\s*</g, '><').match(/(<[^>]+>|[^<]+)/g) || [];
+
+  for (const token of tokens) {
+    if (token.startsWith('</')) {
+      indent = Math.max(0, indent - 1);
+      formatted += tab.repeat(indent) + token + '\n';
+    } else if (token.startsWith('<?') || token.startsWith('<!')) {
+      formatted += tab.repeat(indent) + token + '\n';
+    } else if (token.endsWith('/>')) {
+      formatted += tab.repeat(indent) + token + '\n';
+    } else if (token.startsWith('<')) {
+      formatted += tab.repeat(indent) + token + '\n';
+      indent++;
+    } else {
+      const text = token.trim();
+      if (text) {
+        formatted += tab.repeat(indent) + text + '\n';
+      }
+    }
+  }
+
+  return formatted.trim();
+}
