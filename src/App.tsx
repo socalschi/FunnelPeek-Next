@@ -64,6 +64,14 @@ export function App() {
             };
           });
           setFunnelSteps(hydratedSteps);
+
+          // If board is currently empty, pre-populate board with the latest saved flow step
+          // so preview AND complete UI hierarchy structure are ready immediately!
+          const latestStep = hydratedSteps[hydratedSteps.length - 1];
+          if (latestStep) {
+            setCapturedImage(prev => prev || latestStep.screenshot);
+            setUiHierarchyXml(prev => prev || latestStep.xml);
+          }
         }
       } catch (err) {
         console.warn('Failed to load persisted funnel flow:', err);
