@@ -229,18 +229,32 @@ export const FunnelFlow: React.FC<FunnelFlowProps> = ({
                       </span>
                     </div>
 
-                    {/* Restore in Funnel Board button */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onRestoreToBoard(step);
-                      }}
-                      className="mt-2.5 w-full py-1.5 px-2 rounded bg-white dark:bg-jb-elevated border border-slate-200 dark:border-jb-border hover:bg-jb-accent hover:text-white hover:border-jb-accent dark:hover:bg-jb-accent text-slate-700 dark:text-jb-text text-xs font-medium flex items-center justify-center gap-1.5 transition-colors shadow-xs"
-                      title="Restaurar toda a estrutura e abrir no Funnel Board"
-                    >
-                      <ExternalLink className="w-3.5 h-3.5" />
-                      Inspecionar no Board
-                    </button>
+                    {/* Actions row: Inspecionar no Board + Botão individual para apagar */}
+                    <div className="mt-2.5 flex items-center gap-1.5">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onRestoreToBoard(step);
+                        }}
+                        className="flex-1 py-1.5 px-2 rounded bg-white dark:bg-jb-elevated border border-slate-200 dark:border-jb-border hover:bg-jb-accent hover:text-white hover:border-jb-accent dark:hover:bg-jb-accent text-slate-700 dark:text-jb-text text-xs font-medium flex items-center justify-center gap-1.5 transition-colors shadow-xs"
+                        title="Restaurar toda a estrutura e abrir no Funnel Board"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                        Inspecionar
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (confirm(`Deseja excluir esta tela (${step.packageName}) do histórico?`)) {
+                            removeStep(step.id);
+                          }
+                        }}
+                        className="p-1.5 rounded bg-white dark:bg-jb-elevated border border-slate-200 dark:border-jb-border hover:bg-rose-50 dark:hover:bg-[#351E20] text-slate-400 hover:text-rose-600 dark:hover:text-jb-error transition-colors shadow-xs shrink-0"
+                        title="Excluir esta tela do histórico"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
 
                   {/* Flow Arrow */}
@@ -268,13 +282,28 @@ export const FunnelFlow: React.FC<FunnelFlowProps> = ({
                 className="max-h-full max-w-full object-contain"
               />
             </div>
-            <button
-              onClick={() => onRestoreToBoard(selectedStep)}
-              className="mt-2.5 w-full py-2 px-3 rounded bg-jb-accent hover:bg-[#2F65D4] text-white font-medium text-xs flex items-center justify-center gap-1.5 shadow-xs transition-colors shrink-0"
-            >
-              <ExternalLink className="w-3.5 h-3.5" />
-              Abrir esta Tela no Funnel Board
-            </button>
+            <div className="mt-2.5 flex items-center gap-2 shrink-0">
+              <button
+                onClick={() => onRestoreToBoard(selectedStep)}
+                className="flex-1 py-2 px-3 rounded bg-jb-accent hover:bg-[#2F65D4] text-white font-medium text-xs flex items-center justify-center gap-1.5 shadow-xs transition-colors"
+                title="Abrir tela e estrutura completa no Funnel Board"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                Abrir esta Tela no Funnel Board
+              </button>
+              <button
+                onClick={() => {
+                  if (confirm(`Deseja excluir a tela selecionada (${selectedStep.packageName}) do histórico?`)) {
+                    removeStep(selectedStep.id);
+                  }
+                }}
+                className="py-2 px-2.5 rounded border border-slate-200 dark:border-jb-border bg-white dark:bg-jb-elevated hover:bg-rose-50 dark:hover:bg-[#351E20] text-slate-500 hover:text-rose-600 dark:hover:text-jb-error text-xs font-medium flex items-center justify-center gap-1.5 transition-colors shadow-xs shrink-0"
+                title="Excluir esta tela do histórico"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Excluir</span>
+              </button>
+            </div>
           </div>
 
           {/* Right Details Column: XML dump stretches down to match the bottom alignment of the button */}
