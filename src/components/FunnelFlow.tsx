@@ -258,14 +258,14 @@ export const FunnelFlow: React.FC<FunnelFlowProps> = ({
 
       {/* Selected Screen Deep Inspector: Clean Original Layout with Structured XML */}
       {selectedStep && (
-        <div className="bg-white dark:bg-jb-panel rounded p-4 border border-slate-200 dark:border-jb-border shadow-xs flex flex-col lg:flex-row gap-5 items-stretch">
+        <div className="bg-white dark:bg-jb-panel rounded p-4 border border-slate-200 dark:border-jb-border shadow-xs flex flex-col lg:flex-row gap-5 items-stretch lg:h-[500px]">
           {/* Left Preview Column */}
-          <div className="w-full lg:w-[360px] xl:w-[400px] shrink-0 flex flex-col justify-between">
-            <div className="flex-1 rounded overflow-hidden bg-slate-100 dark:bg-jb-bg flex items-center justify-center border border-slate-200 dark:border-jb-border p-2 min-h-[460px] max-h-[500px]">
+          <div className="w-full lg:w-[320px] xl:w-[350px] shrink-0 h-full flex flex-col justify-between">
+            <div className="flex-1 min-h-0 rounded overflow-hidden bg-slate-100 dark:bg-jb-bg flex items-center justify-center border border-slate-200 dark:border-jb-border p-2">
               <img
                 src={`data:image/png;base64,${selectedStep.screenshot}`}
                 alt={selectedStep.packageName}
-                className="max-h-[460px] w-auto object-contain"
+                className="max-h-full max-w-full object-contain"
               />
             </div>
             <button
@@ -278,53 +278,53 @@ export const FunnelFlow: React.FC<FunnelFlowProps> = ({
           </div>
 
           {/* Right Details Column: XML dump stretches down to match the bottom alignment of the button */}
-          <div className="flex-1 min-w-0 flex flex-col justify-between">
-            {/* Top Details & Annotations */}
-            <div className="shrink-0 space-y-2.5">
-              <h3 className="text-xs font-bold text-slate-500 dark:text-jb-textMuted uppercase tracking-wider">
-                DETALHES DA ESTRUTURA ARMAZENADA
-              </h3>
-
-              {/* App Package & Time */}
-              <div className="p-3 rounded bg-slate-50 dark:bg-jb-elevated/40 border border-slate-200 dark:border-jb-border space-y-1.5">
-                <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-500 dark:text-jb-textMuted font-medium">Package em Execução:</span>
-                  <span className="font-mono font-bold text-jb-accent text-xs">
-                    {selectedStep.packageName}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-500 dark:text-jb-textMuted font-medium">Data e Hora da Captura:</span>
-                  <span className="font-mono text-slate-700 dark:text-jb-text text-xs">
-                    {selectedStep.formattedDate || formatBrazilianDateTime(selectedStep.timestamp)}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-500 dark:text-jb-textMuted font-medium">Elementos UI Mapeados:</span>
-                  <span className="font-mono text-jb-success font-semibold">
-                    {allElementsCount} nós
-                  </span>
+          <div className="flex-1 min-w-0 h-full flex flex-col justify-between">
+            {/* Top Row: Detalhes da Estrutura on the left, Anotações on the right */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 shrink-0 mb-2.5">
+              {/* Detalhes da Estrutura (largura reduzida) */}
+              <div className="flex flex-col space-y-1">
+                <h3 className="text-xs font-bold text-slate-500 dark:text-jb-textMuted uppercase tracking-wider">
+                  DETALHES DA ESTRUTURA ARMAZENADA
+                </h3>
+                <div className="p-3 rounded bg-slate-50 dark:bg-jb-elevated/40 border border-slate-200 dark:border-jb-border space-y-2 h-[96px] flex flex-col justify-center">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-500 dark:text-jb-textMuted font-medium">Package em Execução:</span>
+                    <span className="font-mono font-bold text-jb-accent text-xs truncate max-w-[180px]" title={selectedStep.packageName}>
+                      {selectedStep.packageName}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-500 dark:text-jb-textMuted font-medium">Data e Hora da Captura:</span>
+                    <span className="font-mono text-slate-700 dark:text-jb-text text-xs">
+                      {selectedStep.formattedDate || formatBrazilianDateTime(selectedStep.timestamp)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-500 dark:text-jb-textMuted font-medium">Elementos UI Mapeados:</span>
+                    <span className="font-mono text-jb-success font-semibold">
+                      {allElementsCount} nós
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              {/* Notes / User Annotation */}
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-slate-700 dark:text-jb-text block">
+              {/* Anotações da Etapa (ao lado dos detalhes) */}
+              <div className="flex flex-col space-y-1">
+                <label className="text-xs font-bold text-slate-500 dark:text-jb-textMuted uppercase tracking-wider block">
                   Anotações da Etapa / Ação Realizada:
                 </label>
                 <textarea
                   value={selectedStep.notes || ''}
                   onChange={(e) => updateStepNotes(selectedStep.id, e.target.value)}
                   placeholder="Ex: Usuário preencheu os campos e clicou no botão Entrar..."
-                  rows={3}
-                  className="w-full text-xs p-2.5 rounded border border-slate-200 dark:border-jb-border bg-slate-50 dark:bg-jb-elevated text-slate-900 dark:text-jb-text placeholder-slate-400 dark:placeholder-jb-textMuted focus:outline-none focus:ring-1 focus:ring-jb-accent resize-none"
+                  className="w-full h-[96px] text-xs p-2.5 rounded border border-slate-200 dark:border-jb-border bg-slate-50 dark:bg-jb-elevated text-slate-900 dark:text-jb-text placeholder-slate-400 dark:placeholder-jb-textMuted focus:outline-none focus:ring-1 focus:ring-jb-accent resize-none"
                 />
               </div>
             </div>
 
             {/* XML Dump Container - Stretches to align perfectly with bottom of "Abrir esta Tela no Funnel Board" button */}
-            <div className="flex-1 min-h-[180px] mt-2.5 flex flex-col">
-              <div className="flex items-center justify-between text-xs mb-1 shrink-0">
+            <div className="flex-1 min-h-0 flex flex-col">
+              <div className="flex items-center justify-between text-xs mb-1.5 shrink-0">
                 <span className="font-medium text-slate-700 dark:text-jb-text flex items-center gap-1.5">
                   <FileText className="w-3.5 h-3.5 text-jb-accent" />
                   Preview do Dump XML
@@ -348,9 +348,9 @@ export const FunnelFlow: React.FC<FunnelFlowProps> = ({
                 </div>
               </div>
 
-              {/* Structured XML code box */}
-              <div className="flex-1 min-h-0 p-2.5 rounded bg-slate-900 dark:bg-jb-bg text-slate-300 dark:text-jb-text font-mono text-[11px] leading-relaxed overflow-auto border border-slate-800 dark:border-jb-border select-all">
-                <pre className="whitespace-pre font-mono m-0">{formattedXml}</pre>
+              {/* Structured XML code box with vertical and horizontal scrollbars */}
+              <div className="flex-1 min-h-0 p-2.5 rounded bg-slate-900 dark:bg-jb-bg text-slate-300 dark:text-jb-text font-mono text-[11px] leading-relaxed overflow-x-auto overflow-y-auto border border-slate-800 dark:border-jb-border select-all">
+                <pre className="whitespace-pre font-mono m-0 inline-block min-w-full">{formattedXml}</pre>
               </div>
             </div>
           </div>
