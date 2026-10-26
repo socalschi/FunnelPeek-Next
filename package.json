@@ -14,7 +14,7 @@
     "dist:portable": "npm run build && node scripts/build-dist.js --win portable",
     "dist:all": "npm run build && node scripts/build-dist.js --win",
     "dist:dir": "npm run build && node scripts/build-dist.js --win --dir",
-    "release:publish": "powershell -ExecutionPolicy Bypass -File scripts/upload-release.ps1"
+    "release:publish": "node scripts/publish-release.js"
   },
   "dependencies": {
     "@devicefarmer/adbkit": "^3.2.6",
