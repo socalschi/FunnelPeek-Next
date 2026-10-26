@@ -95,7 +95,7 @@ app.whenReady().then(async () => {
   }
 
   // IPC Handlers
-  ipcMain.handle('get-version', () => '2.0.0');
+  ipcMain.handle('get-version', () => '2.0.5');
 
   // Auto-detect ADB
   ipcMain.handle('auto-detect-adb', async () => {

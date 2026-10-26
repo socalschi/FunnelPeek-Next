@@ -417,7 +417,7 @@ export class AdbService {
       const meta = JSON.stringify({
         deviceId: data.deviceId,
         timestamp: new Date().toISOString(),
-        version: '2.0.0',
+        version: '2.0.5',
         ...(data.metadata || {})
       }, null, 2);
       archive.append(meta, { name: 'metadata.json' });

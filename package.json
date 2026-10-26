@@ -1,6 +1,6 @@
 {
   "name": "funnelpeek-next",
-  "version": "2.0.0",
+  "version": "2.0.5",
   "description": "FunnelPeek Next - Modern Android UI Hierarchy Inspector & Funnel Flow Tool",
   "author": "Guilherme Socalschi",
   "main": "dist-electron/main.js",

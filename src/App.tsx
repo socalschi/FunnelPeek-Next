@@ -350,7 +350,7 @@ export function App() {
           setCurrentPage={setCurrentPage}
           sidebarOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
-          appVersion="2.0.0"
+          appVersion="2.0.5"
           adbPath={adbPath}
           adbVersion={adbVersion}
           onOpenAdbModal={() => setIsAdbModalOpen(true)}
@@ -403,7 +403,7 @@ export function App() {
           {currentPage === 'about' && (
             <div className="flex-1 overflow-y-auto">
               <About
-                appVersion="2.0.0"
+                appVersion="2.0.5"
                 adbVersion={adbVersion}
                 platform={window.electronAPI?.platform || 'Windows (64-bit)'}
               />
